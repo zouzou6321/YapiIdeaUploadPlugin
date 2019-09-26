@@ -14,6 +14,7 @@ import com.intellij.psi.impl.source.PsiJavaFileImpl;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtil;
+import com.qbb.constant.BodyTypeConstant;
 import com.qbb.constant.HttpMethodConstant;
 import com.qbb.constant.JavaConstant;
 import com.qbb.constant.SpringMVCConstant;
@@ -117,6 +118,16 @@ public class BuildJsonForYapi{
     }
 
 
+    /**
+     * 拼装上传yapi的参数对象
+     * @param selectedClass
+     * @param psiMethodTarget
+     * @param project
+     * @param psiFile
+     * @param attachUpload
+     * @param returnClass
+     * @return
+     */
     public static YapiApiDTO actionPerformed(PsiClass selectedClass,PsiMethod psiMethodTarget,Project project,PsiFile psiFile,String attachUpload, String returnClass) {
         YapiApiDTO yapiApiDTO=new YapiApiDTO();
         // 获得路径
@@ -346,13 +357,16 @@ public class BuildJsonForYapi{
             ArrayList list=new ArrayList<YapiQueryDTO>();
             List<YapiHeaderDTO> yapiHeaderDTOList=new ArrayList<>();
             List<YapiPathVariableDTO> yapiPathVariableDTOList=new ArrayList<>();
+            //参数列表梳理
             for(PsiParameter psiParameter:psiParameters){
                 if(JavaConstant.HttpServletRequest.equals(psiParameter.getType().getCanonicalText()) || JavaConstant.HttpServletResponse.equals(psiParameter.getType().getCanonicalText())){
                     continue;
                 }
                 PsiAnnotation psiAnnotation= PsiAnnotationSearchUtil.findAnnotation(psiParameter,SpringMVCConstant.RequestBody);
+                //判断是否json格式参数
                 if(psiAnnotation!=null){
                     yapiApiDTO.setRequestBody(getResponse(project,psiParameter.getType(), null));
+                    yapiApiDTO.setReq_body_type(BodyTypeConstant.FORM);
                 }else{
                     psiAnnotation= PsiAnnotationSearchUtil.findAnnotation(psiParameter,SpringMVCConstant.RequestParam);
                     YapiHeaderDTO yapiHeaderDTO=null;
@@ -490,7 +504,7 @@ public class BuildJsonForYapi{
                             }
                         }else if(HttpMethodConstant.POST.equals(yapiApiDTO.getMethod())){
                             // 支持实体对象接收
-                            yapiApiDTO.setReq_body_type("form");
+                            yapiApiDTO.setReq_body_type(BodyTypeConstant.FORM);
                             if(yapiApiDTO.getReq_body_form()!=null) {
                                 yapiApiDTO.getReq_body_form().addAll(getRequestForm(project, psiParameter, psiMethodTarget));
                             }else{
