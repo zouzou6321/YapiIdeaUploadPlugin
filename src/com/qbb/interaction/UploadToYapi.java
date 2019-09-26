@@ -19,6 +19,7 @@ import com.qbb.dto.YapiDubboDTO;
 import com.qbb.dto.YapiResponse;
 import com.qbb.dto.YapiSaveParam;
 import com.qbb.upload.UploadYapi;
+import org.apache.commons.lang.StringUtils;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -80,11 +81,23 @@ public class UploadToYapi extends AnAction {
                 projectId = projectConfig.split("projectId\">")[1].split("</")[0];
                 yapiUrl = projectConfig.split("yapiUrl\">")[1].split("</")[0];
                 projectType = projectConfig.split("projectType\">")[1].split("</")[0];
-                if (projectConfig.split("returnClass\">").length > 1) {
+
+                /*处理注释的情况不读取*/
+                String[] comments = StringUtils.substringsBetween(projectConfig, "<!--", "-->");
+                boolean commentResultClass = false, commentAttachUploadUrl = false;
+                for (String comment : comments) {
+                    if(comment.contains("returnClass")){
+                        commentResultClass = true;
+                    }
+                    if(comment.contains("attachUploadUrl")){
+                        commentAttachUploadUrl = true;
+                    }
+                }
+                if (!commentResultClass&&projectConfig.split("returnClass\">").length > 1) {
                     returnClass = projectConfig.split("returnClass\">")[1].split("</")[0];
                 }
                 String[] attachs = projectConfig.split("attachUploadUrl\">");
-                if (attachs.length > 1) {
+                if (!commentAttachUploadUrl&&attachs.length > 1) {
                     attachUpload = attachs[1].split("</")[0];
                 }
             }
