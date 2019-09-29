@@ -1,16 +1,26 @@
 <idea-plugin>
-  <id>YapiUpload</id>
-  <name>YapiUpload</name>
-  <version>1.7.4</version>
-  <vendor email="chengsheng@qbb6.com" url="http://www.qbb6.com">QBB</vendor>
+  <id>WxbYapiUpload</id>
+  <name>WxbYapiUpload</name>
+  <version>2.0.0</version>
+  <vendor email="chenglitao521@gmail.com" url="http://yourcompany.com">Wxb</vendor>
 
   <description><![CDATA[
       upload api to yapi<br>
       <em>support dubbo api and api upload</em>
+      <em>（Base on <a href="https://github.com/diwand/YapiIdeaUploadPlugin">YapiIdeaUploadPlugin</a>）</em>
     ]]></description>
 
   <change-notes><![CDATA[
-      <a href="https://github.com/diwand/YapiIdeaUploadPlugin">使用方式</a> <br>
+      <a href="https://github.com/zouzou6321/YapiIdeaUploadPlugin">最新使用方式</a> <br>
+      2.0.0:<br>
+      <em>
+       -将配置文件从idea目录迁移出来，迁移到src/main/resources目录下，主要是考虑是一般会忽略.idea文件夹，忽略的原因是避免不同开发者协作时产生额外的冲突。
+       -未选中类名或者方法名的情况下上传的，默认上传当前文件中的主类，降低操作成本和学习成本。
+       -泛型中包含的类为基础类的时候，直接将泛型字段作为基础类型。
+       -将Java中的类型和Yapi的类型做映射，确保一致性，以便mock数据自动生成。
+       -增加支持枚举属性，枚举数组属性
+       -修改bug
+      </em><br>
       1.7.4:<br>
       <em>
         -兼容老版本
@@ -101,7 +111,7 @@
 
   <actions>
     <!-- Add your actions here -->
-    <action id="UploadToYapi" class="com.qbb.interaction.UploadToYapi" text="UploadToYapi"
+    <action id="UploadToYapi" class="com.qbb.interaction.UploadToYapi" text="WxbUploadToYapi"
             description="UploadToYapi">
       <add-to-group group-id="EditorLangPopupMenu" anchor="first"/>
       <keyboard-shortcut keymap="$default" first-keystroke="alt u"/>
