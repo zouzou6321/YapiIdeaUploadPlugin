@@ -26,6 +26,6 @@ java,spring
 
 #### 使用方式
 
-查看 <a href="https://github.com/diwand/YapiIdeaUploadPlugin/wiki/%E5%BF%AB%E9%80%9F%E4%BD%BF%E7%94%A8">wiki</a> 
+查看 <a href="https://github.com/zouzou6321/YapiIdeaUploadPlugin/wiki">wiki</a> 
 
 
