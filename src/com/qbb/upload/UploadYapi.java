@@ -3,10 +3,17 @@ package com.qbb.upload;
 import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationGroup;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
+import com.intellij.openapi.project.Project;
 import com.qbb.constant.BodyTypeConstant;
 import com.qbb.constant.YapiConstant;
+import com.qbb.constant.YapiStatusEnum;
 import com.qbb.dto.*;
 import com.qbb.util.HttpClientUtil;
+import com.qbb.vo.InterfaceVo;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpGet;
@@ -29,7 +36,7 @@ import java.util.Objects;
  */
 public class UploadYapi {
 
-
+    private static NotificationGroup notificationGroup;
     private Gson gson = new Gson();
 
 
@@ -40,7 +47,7 @@ public class UploadYapi {
      * @author: chengsheng@qbb6.com
      * @date: 2019/5/15
      */
-    public YapiResponse uploadSave(YapiSaveParam yapiSaveParam, String attachUpload, String path) throws IOException {
+    public YapiResponse uploadSave(YapiSaveParam yapiSaveParam, String attachUpload, String path, Project project) throws IOException {
         if (Strings.isNullOrEmpty(yapiSaveParam.getTitle())) {
             yapiSaveParam.setTitle(yapiSaveParam.getPath());
         }
@@ -53,27 +60,94 @@ public class UploadYapi {
         } else if (BodyTypeConstant.JSON.equals(yapiSaveParam.getReq_body_type())) {
             yapiHeaderDTO.setName("Content-Type");
             yapiHeaderDTO.setValue("application/json");
+        }else{
+            yapiHeaderDTO.setName("Content-Type");
+            yapiHeaderDTO.setValue("application/x-www-form-urlencoded");
         }
         if (Objects.isNull(yapiSaveParam.getReq_headers())) {
             List list = new ArrayList();
             list.add(yapiHeaderDTO);
             yapiSaveParam.setReq_headers(list);
         } else {
-            if(Objects.nonNull(yapiHeaderDTO)){
+            if (Objects.nonNull(yapiHeaderDTO)) {
                 yapiSaveParam.getReq_headers().add(yapiHeaderDTO);
             }
         }
         this.changeDesByPath(yapiSaveParam);
         YapiResponse yapiResponse = this.getCatIdOrCreate(yapiSaveParam);
         if (yapiResponse.getErrcode() == 0) {
-            String response =
-                    HttpClientUtil.ObjectToString(HttpClientUtil.getHttpclient().execute(this.getHttpPost(yapiSaveParam.getYapiUrl() + YapiConstant.yapiSave, gson.toJson(yapiSaveParam))), "utf-8");
-            YapiResponse yapiResponseResult = gson.fromJson(response, YapiResponse.class);
-            yapiResponseResult.setCatId(yapiSaveParam.getCatid());
+            YapiResponse yapiResponseResult = addOrUpdate(yapiSaveParam, project);
             return yapiResponseResult;
         } else {
             return yapiResponse;
         }
+    }
+
+    /**
+     * @Description: 判断接口是否存在，不存在直接添加，存在检查接口状态完成不去更新，未完成则更新
+     * @Author: 程立涛
+     * @UpdateUser: 程立涛
+     * @Param: [yapiSaveParam]
+     * @Return: java.lang.String
+     * @CreateDate: 2019/9/29 10:12
+     * @UpdateDate: 2019/9/29 10:12
+     * @version: 1.0
+     * @status: done
+     */
+    private YapiResponse addOrUpdate(YapiSaveParam yapiSaveParam, Project project) throws IOException {
+        YapiResponse yapiResponseResult = null;
+        //1.查询分类下的接口
+        try {
+            String response =
+                    HttpClientUtil.ObjectToString(HttpClientUtil.getHttpclient().execute(this.getHttpGet(yapiSaveParam.getYapiUrl() + YapiConstant.yapiListByCatId + "?token=" + yapiSaveParam.getToken() + "&catid=" + yapiSaveParam.getCatid() + "&limit=1000")), "utf-8");
+            yapiResponseResult = gson.fromJson(response, YapiResponse.class);
+            if (yapiResponseResult.getErrcode() != 0) {
+                Notification error = notificationGroup.createNotification("sorry ,upload api error cause:" + yapiResponseResult.getErrmsg(),
+                        NotificationType.ERROR);
+                Notifications.Bus.notify(error, project);
+            } else {
+
+
+                String yapiListByCatResponseStr = gson.toJson(yapiResponseResult.getData());
+
+                YapiListByCatResponse yapiListByCatResponse = gson.fromJson(yapiListByCatResponseStr, YapiListByCatResponse.class);
+
+                List<InterfaceVo> interfaceVoList = yapiListByCatResponse.getList();
+                if (interfaceVoList == null || interfaceVoList.size() == 0) {
+                    //添加接口
+
+                    String saveResponese =
+                            HttpClientUtil.ObjectToString(HttpClientUtil.getHttpclient().execute(this.getHttpPost(yapiSaveParam.getYapiUrl() + YapiConstant.yapiSave, gson.toJson(yapiSaveParam))), "utf-8");
+                    yapiResponseResult = gson.fromJson(saveResponese, YapiResponse.class);
+                } else {
+                    //添加或者更新接口
+                    boolean yapisave = true;
+
+                    for (InterfaceVo interfaceVo : interfaceVoList) {
+                        if (yapiSaveParam.getPath().equals(interfaceVo.getPath()) && yapiSaveParam.getMethod().equals(interfaceVo.getMethod())) {
+                            if (YapiStatusEnum.done.name().equals(interfaceVo.getStatus())) {
+                                yapisave = false;
+                                break;
+                            }
+                        }
+                    }
+                    if (yapisave) {
+                        String saveOrUpdateResponese =
+                                HttpClientUtil.ObjectToString(HttpClientUtil.getHttpclient().execute(this.getHttpPost(yapiSaveParam.getYapiUrl() + YapiConstant.yapiSave, gson.toJson(yapiSaveParam))), "utf-8");
+                        yapiResponseResult = gson.fromJson(saveOrUpdateResponese, YapiResponse.class);
+                    }
+                }
+            }
+
+
+            yapiResponseResult.setCatId(yapiSaveParam.getCatid());
+        } catch (Exception e) {
+            Notification error = notificationGroup.createNotification("sorry ,upload api error cause:" + e.getMessage(),
+                    NotificationType.ERROR);
+            Notifications.Bus.notify(error, project);
+        }
+
+        return yapiResponseResult;
     }
 
 

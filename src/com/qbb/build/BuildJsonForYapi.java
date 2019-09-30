@@ -366,7 +366,7 @@ public class BuildJsonForYapi{
                 //判断是否json格式参数
                 if(psiAnnotation!=null){
                     yapiApiDTO.setRequestBody(getResponse(project,psiParameter.getType(), null));
-                    yapiApiDTO.setReq_body_type(BodyTypeConstant.FORM);
+                    yapiApiDTO.setReq_body_type(BodyTypeConstant.JSON);
                 }else{
                     psiAnnotation= PsiAnnotationSearchUtil.findAnnotation(psiParameter,SpringMVCConstant.RequestParam);
                     YapiHeaderDTO yapiHeaderDTO=null;

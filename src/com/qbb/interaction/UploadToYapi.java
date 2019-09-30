@@ -127,7 +127,7 @@ public class UploadToYapi extends AnAction {
                     }
                     try {
                         // 上传
-                        YapiResponse yapiResponse = new UploadYapi().uploadSave(yapiSaveParam, null, project.getBasePath());
+                        YapiResponse yapiResponse = new UploadYapi().uploadSave(yapiSaveParam, null, project.getBasePath(),project);
                         if (yapiResponse.getErrcode() != 0) {
                             Notification error = notificationGroup.createNotification("sorry ,upload api error cause:" + yapiResponse.getErrmsg(), NotificationType.ERROR);
                             Notifications.Bus.notify(error, project);
@@ -160,7 +160,7 @@ public class UploadToYapi extends AnAction {
                     }
                     try {
                         // 上传
-                        YapiResponse yapiResponse = new UploadYapi().uploadSave(yapiSaveParam, attachUpload, project.getBasePath());
+                        YapiResponse yapiResponse = new UploadYapi().uploadSave(yapiSaveParam, attachUpload, project.getBasePath(), project);
                         if (yapiResponse.getErrcode() != 0) {
                             Notification error = notificationGroup.createNotification("sorry ,upload api error cause:" + yapiResponse.getErrmsg(), NotificationType.ERROR);
                             Notifications.Bus.notify(error, project);
