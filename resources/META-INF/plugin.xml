@@ -1,99 +1,94 @@
 <idea-plugin>
-  <id>WxbYapiUpload</id>
-  <name>WxbYapiUpload</name>
-  <version>2.0.1</version>
-  <vendor email="chenglitao521@gmail.com" url="http://yourcompany.com">Wxb</vendor>
+  <id>YapiUpload</id>
+  <name>YapiUpload</name>
+  <version>1.7.5</version>
+  <vendor email="chengsheng@qbb6.com" url="http://www.qbb6.com">QBB</vendor>
 
   <description><![CDATA[
       upload api to yapi<br>
       <em>support dubbo api and api upload</em>
-      <em>（Base on <a href="https://github.com/diwand/YapiIdeaUploadPlugin">YapiIdeaUploadPlugin</a>）</em>
     ]]></description>
 
   <change-notes><![CDATA[
-      2.0.1:<br>
-      fixbug
-      <a href="https://github.com/zouzou6321/YapiIdeaUploadPlugin">Latest use</a> <br>
-      2.0.0:<br>
+      <a href="https://github.com/diwand/YapiIdeaUploadPlugin">使用方式</a> <br>
+      1.7.5:<br>
       <em>
-       - Migrate configuration files from the idea directory and migrate to the src/main/resources directory. The main consideration is that the .idea folder is generally ignored. The reason for ignoring is to avoid additional conflicts when different developers collaborate.
-       - Uploaded if the class name or method name is not selected. By default, the main class in the current file is uploaded, which reduces operating costs and learning costs.
-       - When the class contained in the generic is a base class, the generic field is directly used as the base type.
-       - Map types in Java and types of Yapi to ensure consistency so that mock data is automatically generated.
-       - Added support for enumeration properties, enumeration array properties
-       - Modify the bug
+        - response 完善支持map
+        - 支持Deprecated 不上传
+        - 处理循环调用问题
+        - 支持路径缺少 / 补全
       </em><br>
       1.7.4:<br>
       <em>
-        - compatible with older versions
-        - Support unified return value setting
-        - Added default to class name upload
-        - enumeration field parsing
-        - Unify multi-module parameters to solve enumeration packaging problems,
+        -兼容老版本
+        -支持统一返回值设置
+        -新增默认为类名上传
+        -枚举字段解析
+        -统一多模块参数,解决枚举打包问题,
       </em><br>
        1.7.3:<br>
       <em>
-        - Support map, solve same package problems, remove cache, support notblank, support package menu
+        -支持map,解决同包问题,去除缓存,支持notblank,支持package menu
       </em><br>
         1.7.2:<br>
       <em>
-        - Added support for localdata, localTime, localDataTime <br>
+        - 新增支持localdata,localTime,localDataTime <br>
       </em><br>
        1.7.1:<br>
       <em>
-        - Support for custom descriptions not covered (crazy branch support)
-        - Menu acquisition process modification (crazy branch support)
-        - Support status @status comment
-        - Support multi-level classification (crazy branch support)
+        - 支持自定义描述不被覆盖(crazy分支支持)
+        - 菜单获取流程修改(crazy分支支持)
+        - 支持状态@status 注释
+        - 支持多级分类(crazy分支支持)
       </em><br>
        1.7.0:<br>
       <em>
-        - @menu: problem, support dubbo
-        - Support multiple link downloads
-        - Upload results into the clipboard
-        - link same package problem
+        - @menu 中:问题,支持dubbo
+        - 支持多link 下载
+        - 上传结果放入剪切板
+        - link 同包问题
       </em><br>
        1.6.9:<br>
       <em>
         - fix deleteMapping and patchMapping
         - fix menu bug
-        - Support get entity class receiving
+        - 支持get 实体类接收
       </em><br>
       1.6.8:<br>
       <em>
-        - Support for class level path references
-        - Support multiple entity reception
-        - Support Response<List<User>> Generics
+        - 支持类级别路径引用
+        - 支持多个实体接收
+        - 支持 Response<List<User>> 泛型
       </em>
         1.6.7:<br>
       <em>
-        - Supplementary support for A, B, E, K, V generics
-        - Support for PathVariable
+        - 补充支持A,B,E,K,V 泛型写法
+        - 支持PathVariable
       <em> <br>
        1.6.6:<br>
       <em>
-        - Support XXXMapping does not write value
-        - Resolve response <> Display in comments
-        - Support request param Remarks get from comments
+        - 支持XXXMapping 不写value
+        - 解决 response <> 在备注中显示 问题
+        - 支持request param 备注从注释中获取
       </em> <br>
        1.6.5:<br>
       <em>
-        - fixbug request is a bug such as List<Long>
-        - fix code.zip Probabilistically the same problem
-        - fix HttpServletRequest&HttpServletResponse exists in Req_body_type type problem
+        - fixbug request 为 List<Long> 等 bug
+        - fix code.zip 概率性一样问题
+        - fix HttpServletRequest&HttpServletResponse 存在下Req_body_type 类型问题
       </em>
       <br>
       1.6.4:<br>
       <em>
-        - Support class level classification definition
+        - 支持类级别 分类定义
         <em>
        <br>
         1.6.3:<br>
-      <em> fix Multi-level generic problem
-      - Support @NotNull annotations
-      - Support for PutMapping, DeleteMapping,
-      - Support model receiving parameters and application/x-www-form-urlencoded
-      - Support for custom classifications <br>
+      <em> fix 多级泛型问题
+      - 支持@NotNull 注解
+      - 支持PutMapping,DeleteMapping,
+      - 支持 model 接收参数和application/x-www-form-urlencoded
+      - 支持自定义分类 <br>
 
     ]]>
   </change-notes>
@@ -113,7 +108,7 @@
 
   <actions>
     <!-- Add your actions here -->
-    <action id="UploadToYapi" class="com.qbb.interaction.UploadToYapi" text="WxbUploadToYapi"
+    <action id="UploadToYapi" class="com.qbb.interaction.UploadToYapi" text="UploadToYapi"
             description="UploadToYapi">
       <add-to-group group-id="EditorLangPopupMenu" anchor="first"/>
       <keyboard-shortcut keymap="$default" first-keystroke="alt u"/>
