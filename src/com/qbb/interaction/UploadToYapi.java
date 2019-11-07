@@ -85,14 +85,17 @@ public class UploadToYapi extends AnAction {
                 /*处理注释的情况不读取*/
                 String[] comments = StringUtils.substringsBetween(projectConfig, "<!--", "-->");
                 boolean commentResultClass = false, commentAttachUploadUrl = false;
-                for (String comment : comments) {
-                    if(comment.contains("returnClass")){
-                        commentResultClass = true;
-                    }
-                    if(comment.contains("attachUploadUrl")){
-                        commentAttachUploadUrl = true;
+                if(comments!=null&&comments.length>0){
+                    for (String comment : comments) {
+                        if(comment.contains("returnClass")){
+                            commentResultClass = true;
+                        }
+                        if(comment.contains("attachUploadUrl")){
+                            commentAttachUploadUrl = true;
+                        }
                     }
                 }
+
                 if (!commentResultClass&&projectConfig.split("returnClass\">").length > 1) {
                     returnClass = projectConfig.split("returnClass\">")[1].split("</")[0];
                 }
