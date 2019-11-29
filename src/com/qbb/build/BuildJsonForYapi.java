@@ -31,6 +31,8 @@ import org.codehaus.jettison.json.JSONException;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
@@ -82,12 +84,14 @@ public class BuildJsonForYapi{
             PsiMethod[] psiMethods=selectedClass.getMethods();
             for(PsiMethod psiMethodTarget:psiMethods) {
                 //去除私有方法
-                if(!psiMethodTarget.getModifierList().hasModifierProperty("private")) {
+                if(!psiMethodTarget.getModifierList().hasModifierProperty("private")&& Objects.nonNull(psiMethodTarget.getReturnType())) {
                     YapiApiDTO yapiApiDTO=actionPerformed(selectedClass, psiMethodTarget, project, psiFile,attachUpload, returnClass);
-                    if(Objects.isNull(yapiApiDTO.getMenu())){
-                        yapiApiDTO.setMenu(classMenu);
+                    if(Objects.nonNull(yapiApiDTO)) {
+                        if (Objects.isNull(yapiApiDTO.getMenu())) {
+                            yapiApiDTO.setMenu(classMenu);
+                        }
+                        yapiApiDTOS.add(yapiApiDTO);
                     }
-                    yapiApiDTOS.add(yapiApiDTO);
                 }
             }
         }else{
@@ -102,10 +106,12 @@ public class BuildJsonForYapi{
             }
             if(Objects.nonNull(psiMethodTarget)) {
                 YapiApiDTO yapiApiDTO= actionPerformed(selectedClass, psiMethodTarget, project, psiFile,attachUpload, returnClass);
-                if(Objects.isNull(yapiApiDTO.getMenu())){
-                    yapiApiDTO.setMenu(classMenu);
+                if(Objects.nonNull(yapiApiDTO)) {
+                    if (Objects.isNull(yapiApiDTO.getMenu())) {
+                        yapiApiDTO.setMenu(classMenu);
+                    }
+                    yapiApiDTOS.add(yapiApiDTO);
                 }
-                yapiApiDTOS.add(yapiApiDTO);
             }else{
                 Notification error = notificationGroup.createNotification("can not find method:"+selectedText, NotificationType.ERROR);
                 Notifications.Bus.notify(error, project);
@@ -116,16 +122,6 @@ public class BuildJsonForYapi{
     }
 
 
-    /**
-     * 拼装上传yapi的参数对象
-     * @param selectedClass
-     * @param psiMethodTarget
-     * @param project
-     * @param psiFile
-     * @param attachUpload
-     * @param returnClass
-     * @return
-     */
     public static YapiApiDTO actionPerformed(PsiClass selectedClass,PsiMethod psiMethodTarget,Project project,PsiFile psiFile,String attachUpload, String returnClass) {
         YapiApiDTO yapiApiDTO=new YapiApiDTO();
         // 获得路径
@@ -798,6 +794,7 @@ public class BuildJsonForYapi{
             if(!Strings.isNullOrEmpty(remark)) {
                 jsonObject.addProperty("description", remark);
             }
+            jsonObject.add("mock",NormalTypes.formatMockType(type.getPresentableText()));
             kv.set(name, jsonObject);
         } else {
             //reference Type
@@ -809,6 +806,7 @@ public class BuildJsonForYapi{
                 if(!Strings.isNullOrEmpty(remark)) {
                     jsonObject.addProperty("description", remark);
                 }
+                jsonObject.add("mock",NormalTypes.formatMockType(type.getPresentableText()));
                 kv.set(name, jsonObject);
             }else if(!(type instanceof PsiArrayType)&&((PsiClassReferenceType) type).resolve().isEnum()) {
                 JsonObject jsonObject=new JsonObject();
@@ -832,8 +830,8 @@ public class BuildJsonForYapi{
                         kv1.set(KV.by("type", NormalTypes.getYapiType(psiClassChild.getName())));
                         kv.set(name, kv1);
                         kv1.set(KV.by("description", (Strings.isNullOrEmpty(remark)?name:remark)));
-                    }
-                    else{
+                        kv1.set(KV.by("mock", NormalTypes.formatMockType(child)));
+                    } else {
                         //class type
                         KV kv1 = new KV();
                         kv1.set(KV.by("type", "object"));
@@ -939,6 +937,7 @@ public class BuildJsonForYapi{
             }
         }
     }
+
 
 
     /**
