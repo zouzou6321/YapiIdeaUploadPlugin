@@ -479,7 +479,9 @@ public class BuildJsonForYapi{
                             list.add(yapiQueryDTO);
                         }
                     }else{
-                        if(HttpMethodConstant.GET.equals(yapiApiDTO.getMethod())){
+                        boolean isPost =
+                                HttpMethodConstant.GET.equals(yapiApiDTO.getMethod()) || HttpMethodConstant.DELETE.equals(yapiApiDTO.getMethod()) || HttpMethodConstant.PUT.equals(yapiApiDTO.getMethod());
+                        if(isPost){
                                List<Map<String,String>> requestList= getRequestForm(project, psiParameter, psiMethodTarget);
                             for(Map<String,String> map:requestList){
                                 list.add(new YapiQueryDTO(map.get("desc"),map.get("example"),map.get("name")));
@@ -931,8 +933,7 @@ public class BuildJsonForYapi{
                     kv1.set(KV.by("properties", getFields(PsiUtil.resolveClassInType(type), project, childType, index,requiredList,pNames)));
                     kv1.set("required",requiredList);
                 }else{
-                    kv1.set(KV.by("type",((PsiClassReferenceType) type).getClassName()));
-                    kv1.set(KV.by("type",NormalTypes.getYapiType(pName)));
+                    kv1.set(KV.by("type",NormalTypes.getYapiType(((PsiClassReferenceType) type).getClassName())));
                 }
                 kv.set(name,kv1);
             }
@@ -963,7 +964,7 @@ public class BuildJsonForYapi{
                 kvlist.set("required",requiredList);
                 addFilePaths(filePaths,psiClass);
             }else{
-                kvlist.set(KV.by("type",NormalTypes.getYapiType(pName)));
+                kvlist.set(KV.by("type",psiClass.getName()));
             }
         }
         KV kv1=new KV();

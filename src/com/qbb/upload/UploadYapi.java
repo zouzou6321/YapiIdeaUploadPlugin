@@ -53,7 +53,7 @@ public class UploadYapi {
         }
         YapiHeaderDTO yapiHeaderDTO = new YapiHeaderDTO();
         if (StringUtils.isEmpty(yapiSaveParam.getReq_body_type())) {
-            yapiHeaderDTO = null;
+            yapiHeaderDTO =null;
         } else if (BodyTypeConstant.FORM.equals(yapiSaveParam.getReq_body_type())) {
             yapiHeaderDTO.setName("Content-Type");
             yapiHeaderDTO.setValue("application/x-www-form-urlencoded");
@@ -66,7 +66,10 @@ public class UploadYapi {
         }
         if (Objects.isNull(yapiSaveParam.getReq_headers())) {
             List list = new ArrayList();
-            list.add(yapiHeaderDTO);
+            if(Objects.nonNull(yapiHeaderDTO)){
+                list.add(yapiHeaderDTO);
+            }
+
             yapiSaveParam.setReq_headers(list);
         } else {
             if (Objects.nonNull(yapiHeaderDTO)) {
