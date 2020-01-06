@@ -234,6 +234,9 @@ public class BuildJsonForYapi{
                 }else{
                     yapiApiDTO.setPath(path.toString().trim());
                 }
+            }else{
+                /*兼容没有注解的普通方法*/
+                return null;
             }
         }
         String classDesc=psiMethodTarget.getText().replace(Objects.nonNull(psiMethodTarget.getBody())?psiMethodTarget.getBody().getText():"","");

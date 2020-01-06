@@ -1,8 +1,8 @@
 <idea-plugin>
-  <id>YapiUpload</id>
-  <name>YapiUpload</name>
-  <version>1.7.6</version>
-  <vendor email="chengsheng@qbb6.com" url="http://www.qbb6.com">QBB</vendor>
+  <id>WxbYapiUpload</id>
+  <name>WxbYapiUpload</name>
+  <version>2.0.4</version>
+  <vendor email="chenglitao521@gmail.com" url="http://www.qbb6.com">wxb</vendor>
 
   <description><![CDATA[
       upload api to yapi<br>
@@ -10,165 +10,39 @@
     ]]></description>
 
   <change-notes><![CDATA[
-      <a href="https://github.com/diwand/YapiIdeaUploadPlugin">how to use</a> <br>
-     1.7.6:<br>
+      <a href="https://github.com/zouzou6321/YapiIdeaUploadPlugin">使用方式</a> <br>
+     2.0.3:<br>
       <em>
       - support base mock power
+       -fixbug
       </em><br>
-
-     1.7.5:<br>
+      2.0.2:<br>
       <em>
-      - Response complete support map
-
-      - Support deprecated do not upload
-
-      - Dealing with loop calls
-
-      - Support path missing / complete
-
+        -Solve the bug that DeleteMapping and PutMapping annotation parameters cannot be generated
+        -Response support map
+        -Support Deprecated not upload
+        -Handle loop calls
+       -fixbug
       </em><br>
-
-      1.7.4:<br>
-
+      2.0.1:<br>
       <em>
-
-      - Compatible with older versions
-
-      - Support unified return value setting
-
-      - Class name upload by default
-
-      - Enumeration field resolution
-
-      - Unify multi module parameters to solve enumeration packing problem,
-
+        -Solve the problem that the content of yapi.xml comments is still read.
+        -Solve the problem of inaccurate content-type generation.
+        The completed interface on -yapi is not updated, and the contents modified manually will not be overwritten
+        -Support path missing / completion
+       -fixbug
       </em><br>
-
-      1.7.3:<br>
-
+      2.0.0:<br>
       <em>
-
-      - Support map, solve the same package problem, remove cache, support notblank, support package menu
-
+        -Migrate configuration files from the idea directory to the src / main / resources directory. The main consideration is that the .idea folder is generally ignored. The reason for this is to avoid additional conflicts when different developers collaborate.
+        -Uploading without specifying a class name or method name, alternately upload the main class in the current file, reducing operating and learning costs.
+         When the class included in the generic is the base class, the generic variable is directly used as the base type.
+        -Map the types in Java and the types of Yapi to ensure consistency, and automatically generate decomposed data.
+         Add support for enumerated attributes and enumerate multiple attributes
+         -fixbug
       </em><br>
-
-      1.7.2:<br>
-
-      <em>
-
-      - New support for localdata, Localtime, localdatatime < br >
-
-      </em><br>
-
-      1.7.1:<br>
-
-      <em>
-
-      - Support for custom description not to be overwritten (crazy branch)
-
-      - Menu acquisition process modification (crazy branch)
-
-      - Support status @ status annotation
-
-      - Support multi-level classification (crazy branch)
-
-      </em><br>
-
-      1.7.0:<br>
-
-      <em>
-
-      - In @ menu: questions, Dubbo support
-
-      - Support for multi link Download
-
-      - Upload results to the clipboard
-
-      - Link same package problem
-
-      </em><br>
-
-      1.6.9:<br>
-
-      <em>
-
-      - fix deleteMapping and patchMapping
-
-      - fix menu bug
-
-      - Support get entity class receiving
-
-      </em><br>
-
-      1.6.8:<br>
-
-      <em>
-
-      - Support class level path reference
-
-      - Support multiple entity reception
-
-      - Support response < list < user > > generics
-
-      </em>
-
-      1.6.7:<br>
-
-      <em>
-
-      - Supplementary support for a, B, e, K, V generic writing
-
-      - Support for pathvariable
-
-      <em> <br>
-
-      1.6.6:<br>
-
-      <em>
-
-      - Support xxxmapping without writing value
-
-      - Solve the problem that response < > displays in the comments
-
-      - Support request param comments to get from comments
-
-      </em> <br>
-
-      1.6.5:<br>
-
-      <em>
-
-      - Fixbug request is list < long > and other bugs
-
-      - Fix code.zip the same problem of probability
-
-      - The req? Body? Type problem exists in fix HttpServletRequest & httpservletresponse
-
-      </em>
-
       <br>
 
-      1.6.4:<br>
-
-      <em>
-
-      - Support class level classification definition
-
-      <em>
-
-      <br>
-
-      1.6.3:<br>
-
-      <em>Fix multilevel generic problems
-
-      - Support @ notnull annotation
-
-      - Support putmapping, deletemapping,
-
-      - Support model receiving parameters and application / x-www-form-urlencoded
-
-      - Support user-defined classification < br >
 
     ]]>
   </change-notes>
