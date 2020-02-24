@@ -11,4 +11,7 @@ public interface SwaggerConstants {
     String API_MODEL_PROPERTY = "io.swagger.annotations.ApiModelProperty";
 
     String API_PARAM = "io.swagger.annotations.ApiParam";
+
+    String API_IGNORE = "springfox.documentation.annotations.ApiIgnore";
+
 }

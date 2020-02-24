@@ -19,4 +19,8 @@ public interface JavaConstant {
     String HttpServletResponse="javax.servlet.http.HttpServletResponse";
 
     String Deprecate="java.lang.Deprecated";
+
+    String LOGIN_INFO = "LoginUserInfo";
+    String WECHAT_INFO = "WxUserInfo";
+
 }

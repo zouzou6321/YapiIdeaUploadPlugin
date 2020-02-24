@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>WxbYapiUpload</id>
   <name>WxbYapiUpload</name>
-  <version>2.0.4</version>
+  <version>2.0.6</version>
   <vendor email="chenglitao521@gmail.com" url="http://www.qbb6.com">wxb</vendor>
 
   <description><![CDATA[
@@ -11,6 +11,16 @@
 
   <change-notes><![CDATA[
       <a href="https://github.com/zouzou6321/YapiIdeaUploadPlugin">使用方式</a> <br>
+      2.0.6:<br>
+     <em>
+      - fixbug
+     </em><br>
+     2.0.5:<br>
+     <em>
+      - support swagger & swagger mock
+      - ignore logininfo
+      - fixbug
+     </em><br>
      2.0.3:<br>
       <em>
       - support base mock power

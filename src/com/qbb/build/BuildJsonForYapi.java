@@ -2,43 +2,19 @@ package com.qbb.build;
 
 import com.google.common.base.Strings;
 import com.google.gson.JsonObject;
-import com.intellij.codeInsight.AnnotationUtil;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationDisplayType;
-import com.intellij.notification.NotificationGroup;
-import com.intellij.notification.NotificationType;
-import com.intellij.notification.Notifications;
+import com.intellij.notification.*;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.JavaPsiFacade;
-import com.intellij.psi.PsiAnnotation;
-import com.intellij.psi.PsiAnnotationMemberValue;
-import com.intellij.psi.PsiArrayType;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiEnumConstant;
-import com.intellij.psi.PsiField;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiModifierListOwner;
-import com.intellij.psi.PsiNameValuePair;
-import com.intellij.psi.PsiParameter;
-import com.intellij.psi.PsiPrimitiveType;
-import com.intellij.psi.PsiReference;
-import com.intellij.psi.PsiType;
+import com.intellij.psi.*;
 import com.intellij.psi.impl.compiled.ClsFileImpl;
 import com.intellij.psi.impl.source.PsiClassReferenceType;
 import com.intellij.psi.impl.source.PsiJavaFileImpl;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtil;
-import com.qbb.constant.BodyTypeConstant;
-import com.qbb.constant.HttpMethodConstant;
-import com.qbb.constant.JavaConstant;
-import com.qbb.constant.SpringMVCConstant;
-import com.qbb.constant.SwaggerConstants;
+import com.qbb.constant.*;
 import com.qbb.dto.YapiApiDTO;
 import com.qbb.dto.YapiHeaderDTO;
 import com.qbb.dto.YapiPathVariableDTO;
@@ -53,14 +29,7 @@ import org.codehaus.jettison.json.JSONException;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
@@ -89,15 +58,7 @@ public class BuildJsonForYapi {
         Editor editor = e.getDataContext().getData(CommonDataKeys.EDITOR);
         PsiFile psiFile = e.getDataContext().getData(CommonDataKeys.PSI_FILE);
         String selectedText = e.getRequiredData(CommonDataKeys.EDITOR).getSelectionModel().getSelectedText();
-        if (Strings.isNullOrEmpty(selectedText)) {
-            selectedText = psiFile.getVirtualFile().getName().split("\\.")[0];
-        }
         Project project = editor.getProject();
-        if(Strings.isNullOrEmpty(selectedText)){
-            Notification error = notificationGroup.createNotification("please select method or class", NotificationType.ERROR);
-            Notifications.Bus.notify(error, project);
-            return null;
-        }
         PsiElement referenceAt = psiFile.findElementAt(editor.getCaretModel().getOffset());
         PsiClass selectedClass = (PsiClass) PsiTreeUtil.getContextOfType(referenceAt, new Class[]{PsiClass.class});
         String classMenu = null;
@@ -112,7 +73,7 @@ public class BuildJsonForYapi {
         }
         ArrayList<YapiApiDTO> yapiApiDTOS = new ArrayList<>();
         //判断是否选中方法
-        if (selectedText.equals(selectedClass.getName())) {
+        if (Strings.isNullOrEmpty(selectedText) || selectedText.equals(selectedClass.getName())) {
             PsiMethod[] psiMethods = selectedClass.getMethods();
             for (PsiMethod psiMethodTarget : psiMethods) {
                 //去除私有方法
@@ -375,6 +336,14 @@ public class BuildJsonForYapi {
             //参数列表梳理
             for (PsiParameter psiParameter : psiParameters) {
                 if (JavaConstant.HttpServletRequest.equals(psiParameter.getType().getCanonicalText()) || JavaConstant.HttpServletResponse.equals(psiParameter.getType().getCanonicalText())) {
+                    continue;
+                }
+                if(JavaConstant.LOGIN_INFO.equals(psiParameter.getType().getPresentableText())||JavaConstant.WECHAT_INFO.equals(psiParameter.getType().getPresentableText())) {
+                    continue;
+                }
+
+                PsiAnnotation apiIgnore = PsiAnnotationSearchUtil.findAnnotation(psiParameter, SwaggerConstants.API_IGNORE);
+                if(apiIgnore!=null){
                     continue;
                 }
                 PsiAnnotation psiAnnotation = PsiAnnotationSearchUtil.findAnnotation(psiParameter, SpringMVCConstant.RequestBody);
@@ -645,10 +614,10 @@ public class BuildJsonForYapi {
                 String childPackage = types[1].split(">")[0];
                 if (NormalTypes.noramlTypesPackages.keySet().contains(childPackage)) {
                     String[] childTypes = childPackage.split("\\.");
-                    listKv.set("type", NormalTypes.getYapiType(childTypes[childTypes.length - 1]));
+                    listKv.set("type", childTypes[childTypes.length - 1]);
                 } else if (NormalTypes.collectTypesPackages.containsKey(childPackage)) {
                     String[] childTypes = childPackage.split("\\.");
-                    listKv.set("type", NormalTypes.getYapiType(childTypes[childTypes.length - 1]));
+                    listKv.set("type", childTypes[childTypes.length - 1]);
                 } else {
                     PsiClass psiClassChild = JavaPsiFacade.getInstance(project).findClass(childPackage, GlobalSearchScope.allScope(project));
                     List<String> requiredList = new ArrayList<>();
@@ -675,10 +644,10 @@ public class BuildJsonForYapi {
                 String childPackage = types[1].split(">")[0];
                 if (NormalTypes.noramlTypesPackages.keySet().contains(childPackage)) {
                     String[] childTypes = childPackage.split("\\.");
-                    listKv.set("type", NormalTypes.getYapiType(childTypes[childTypes.length - 1]));
+                    listKv.set("type", childTypes[childTypes.length - 1]);
                 } else if (NormalTypes.collectTypesPackages.containsKey(childPackage)) {
                     String[] childTypes = childPackage.split("\\.");
-                    listKv.set("type", NormalTypes.getYapiType(childTypes[childTypes.length - 1]));
+                    listKv.set("type", childTypes[childTypes.length - 1]);
                 } else {
                     PsiClass psiClassChild = JavaPsiFacade.getInstance(project).findClass(childPackage, GlobalSearchScope.allScope(project));
                     List<String> requiredList = new ArrayList<>();
@@ -829,20 +798,24 @@ public class BuildJsonForYapi {
         PsiType type = field.getType();
         String name = field.getName();
         String remark = "";
+        //swagger支持
+        remark = StringUtils.defaultIfEmpty(PsiAnnotationSearchUtil.getPsiParameterAnnotationValue(field, SwaggerConstants.API_MODEL_PROPERTY), "");
         if (field.getDocComment() != null) {
-            remark = DesUtil.getFiledDesc(field.getDocComment());
+            if(Strings.isNullOrEmpty(remark)) {
+                remark = DesUtil.getFiledDesc(field.getDocComment());
+            }
+
             //获得link 备注
             remark = DesUtil.getLinkRemark(remark, project, field);
             getFilePath(project, filePaths, DesUtil.getFieldLinks(project, field));
         }
 
-        //swagger支持
-        remark = StringUtils.defaultIfEmpty(PsiAnnotationSearchUtil.getPsiParameterAnnotationValue(field, SwaggerConstants.API_MODEL_PROPERTY), "");
+
 
         // 如果是基本类型
         if (type instanceof PsiPrimitiveType) {
             JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("type", NormalTypes.getYapiType(type.getPresentableText()));
+            jsonObject.addProperty("type", type.getPresentableText());
             if (!Strings.isNullOrEmpty(remark)) {
                 jsonObject.addProperty("description", remark);
             }
@@ -855,7 +828,7 @@ public class BuildJsonForYapi {
             //normal Type
             if (NormalTypes.isNormalType(fieldTypeName)) {
                 JsonObject jsonObject = new JsonObject();
-                jsonObject.addProperty("type", NormalTypes.getYapiType(fieldTypeName));
+                jsonObject.addProperty("type", fieldTypeName);
                 if (!Strings.isNullOrEmpty(remark)) {
                     jsonObject.addProperty("description", remark);
                 }
@@ -881,7 +854,7 @@ public class BuildJsonForYapi {
                     } else if (NormalTypes.isNormalType(child) || NormalTypes.noramlTypesPackages.containsKey(child)) {
                         KV kv1 = new KV();
                         PsiClass psiClassChild = JavaPsiFacade.getInstance(project).findClass(child, GlobalSearchScope.allScope(project));
-                        kv1.set(KV.by("type", NormalTypes.getYapiType(psiClassChild.getName())));
+                        kv1.set(KV.by("type", psiClassChild.getName()));
                         kv.set(name, kv1);
                         kv1.set(KV.by("description", (Strings.isNullOrEmpty(remark) ? name : remark)));
                         kv1.set(KV.by("mock", NormalTypes.formatMockType(child
@@ -903,7 +876,7 @@ public class BuildJsonForYapi {
                         kv.set(name, kv1);
                     }
                 }
-                //    getField()
+
             } else if (type instanceof PsiArrayType) {
                 //array type
                 PsiType deepType = type.getDeepComponentType();
@@ -911,20 +884,16 @@ public class BuildJsonForYapi {
                 String deepTypeName = deepType.getPresentableText();
                 String cType = "";
                 if (deepType instanceof PsiPrimitiveType) {
-                    kvlist.set("type", NormalTypes.getYapiType(type.getPresentableText()));
+                    kvlist.set("type", type.getPresentableText());
                     if (!Strings.isNullOrEmpty(remark)) {
                         kvlist.set("description", remark);
                     }
                 } else if (NormalTypes.isNormalType(deepTypeName)) {
-                    kvlist.set("type", NormalTypes.getYapiType(deepTypeName));
+                    kvlist.set("type", deepTypeName);
                     if (!Strings.isNullOrEmpty(remark)) {
                         kvlist.set("description", remark);
                     }
-                } else if(!(deepType instanceof PsiArrayType)&&((PsiClassReferenceType) deepType).resolve().isEnum()) {
-                    remark = getEnumRemark(project, deepType, remark);
-                    kvlist.set("type", "string");
-                }
-                else{
+                } else {
                     kvlist.set(KV.by("type", "object"));
                     PsiClass psiClass = PsiUtil.resolveClassInType(deepType);
                     cType = psiClass.getName();
@@ -986,7 +955,7 @@ public class BuildJsonForYapi {
                     kv1.set(KV.by("properties", getFields(PsiUtil.resolveClassInType(type), project, childType, index, requiredList, pNames)));
                     kv1.set("required", requiredList);
                 } else {
-                    kv1.set(KV.by("type", NormalTypes.getYapiType(((PsiClassReferenceType) type).getClassName())));
+                    kv1.set(KV.by("type", ((PsiClassReferenceType) type).getClassName()));
                 }
                 kv.set(name, kv1);
             }
@@ -1004,7 +973,7 @@ public class BuildJsonForYapi {
     public static void getCollect(KV kv, String classTypeName, String remark, PsiClass psiClass, Project project, String name, Set<String> pNames, String[] childType, Integer index) {
         KV kvlist = new KV();
         if (NormalTypes.isNormalType(classTypeName) || NormalTypes.collectTypes.containsKey(classTypeName)) {
-            kvlist.set("type", NormalTypes.getYapiType(classTypeName));
+            kvlist.set("type", classTypeName);
             if (!Strings.isNullOrEmpty(remark)) {
                 kvlist.set("description", remark);
             }
