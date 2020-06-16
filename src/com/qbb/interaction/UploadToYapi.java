@@ -160,6 +160,7 @@ public class UploadToYapi extends AnAction {
                     yapiSaveParam.setReq_body_type(yapiApiDTO.getReq_body_type());
                     yapiSaveParam.setReq_params(yapiApiDTO.getReq_params());
                     yapiSaveParam.setStatus(yapiApiDTO.getStatus());
+                    yapiSaveParam.setTag(yapiApiDTO.getTag());
                     if (!Strings.isNullOrEmpty(yapiApiDTO.getMenu())) {
                         yapiSaveParam.setMenu(yapiApiDTO.getMenu());
                     } else {

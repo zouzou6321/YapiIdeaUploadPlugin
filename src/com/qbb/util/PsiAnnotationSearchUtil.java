@@ -221,4 +221,20 @@ public class PsiAnnotationSearchUtil {
         return AnnotationUtil.getStringAttributeValue(annotation, paramName);
     }
 
+    /**
+     * 获取注解某个boolean值
+     *
+     * @param psiParameter
+     * @param annotationName
+     * @return
+     */
+    public static Boolean getPsiParameterAnnotationParamBoolean(PsiModifierListOwner psiParameter, String annotationName, String paramName) {
+        PsiAnnotation annotation = PsiAnnotationSearchUtil.findAnnotation(psiParameter, annotationName);
+        if (annotation == null) {
+            return null;
+        }
+
+        return AnnotationUtil.getBooleanAttributeValue(annotation, paramName);
+    }
+
 }

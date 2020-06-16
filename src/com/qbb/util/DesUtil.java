@@ -167,6 +167,23 @@ public class DesUtil {
     }
 
     /**
+     * 获得tag
+     * @param text
+     * @return
+     */
+    public static String getTag(String text){
+        if (Strings.isNullOrEmpty(text) || !text.contains("*/")) {
+            return null;
+        }
+        String[] menuList = text.split("\\*/")[0].split("@tags");
+        if (menuList.length > 1) {
+            return DesUtil.trimFirstAndLastChar(menuList[1].split("\\*")[0].replace("*", "").replace(":","").replace("\n", " ").replace(" ",""), ' ').trim();
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * @description: 获得link 备注
      * @param: [remark, project, field]
      * @return: java.lang.String

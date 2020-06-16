@@ -60,9 +60,11 @@ public class UploadYapi {
         } else if (BodyTypeConstant.JSON.equals(yapiSaveParam.getReq_body_type())) {
             yapiHeaderDTO.setName("Content-Type");
             yapiHeaderDTO.setValue("application/json");
+            yapiSaveParam.setReq_body_type("json");
         }else{
             yapiHeaderDTO.setName("Content-Type");
-            yapiHeaderDTO.setValue("application/x-www-form-urlencoded");
+            yapiHeaderDTO.setValue("application/json");
+            yapiSaveParam.setReq_body_type("json");
         }
         if (Objects.isNull(yapiSaveParam.getReq_headers())) {
             List list = new ArrayList();
@@ -98,6 +100,7 @@ public class UploadYapi {
      * @status: done
      */
     private YapiResponse addOrUpdate(YapiSaveParam yapiSaveParam, Project project) throws IOException {
+
         YapiResponse yapiResponseResult = null;
         //1.查询分类下的接口
         try {
@@ -128,6 +131,7 @@ public class UploadYapi {
 
                     for (InterfaceVo interfaceVo : interfaceVoList) {
                         if (yapiSaveParam.getPath().equals(interfaceVo.getPath()) && yapiSaveParam.getMethod().equals(interfaceVo.getMethod())) {
+                            yapiSaveParam.setId(String.valueOf(interfaceVo.getId()));
                             if (YapiStatusEnum.done.name().equals(interfaceVo.getStatus())) {
                                 yapisave = false;
                                 break;
