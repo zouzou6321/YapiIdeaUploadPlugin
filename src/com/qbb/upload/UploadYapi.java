@@ -53,10 +53,13 @@ public class UploadYapi {
         }
         YapiHeaderDTO yapiHeaderDTO = new YapiHeaderDTO();
         if (StringUtils.isEmpty(yapiSaveParam.getReq_body_type())) {
-            yapiHeaderDTO =null;
+            yapiHeaderDTO.setName("Content-Type");
+            yapiHeaderDTO.setValue("application/json");
+            yapiSaveParam.setReq_body_type("json");
         } else if (BodyTypeConstant.FORM.equals(yapiSaveParam.getReq_body_type())) {
             yapiHeaderDTO.setName("Content-Type");
             yapiHeaderDTO.setValue("application/x-www-form-urlencoded");
+            yapiSaveParam.setReq_body_form(yapiSaveParam.getReq_body_form());
         } else if (BodyTypeConstant.JSON.equals(yapiSaveParam.getReq_body_type())) {
             yapiHeaderDTO.setName("Content-Type");
             yapiHeaderDTO.setValue("application/json");
@@ -310,6 +313,7 @@ public class UploadYapi {
                 HttpClientUtil.ObjectToString(HttpClientUtil.getHttpclient().execute(this.getHttpPost(yapiSaveParam.getYapiUrl() + YapiConstant.yapiAddCat, gson.toJson(yapiCatMenuParam))), "utf-8");
         YapiCatResponse yapiCatResponse = gson.fromJson(gson.fromJson(responseCat, YapiResponse.class).getData().toString(), YapiCatResponse.class);
         return yapiCatResponse.get_id();
+
     }
 
 

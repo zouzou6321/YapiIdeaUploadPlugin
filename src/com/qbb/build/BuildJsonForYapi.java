@@ -1,7 +1,6 @@
 package com.qbb.build;
 
 import com.google.common.base.Strings;
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.intellij.notification.*;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -467,10 +466,6 @@ public class BuildJsonForYapi {
                             }
                             if (Strings.isNullOrEmpty(yapiHeaderDTO.getExample()) && NormalTypes.normalTypes.containsKey(psiParameter.getType().getPresentableText())) {
                                 yapiHeaderDTO.setExample(NormalTypes.normalTypes.get(psiParameter.getType().getPresentableText()).toString());
-                            }else{
-                                Gson gson = new Gson();
-                                String gsonStr = gson.toJson(psiParameter.getType());
-                                yapiHeaderDTO.setExample(gsonStr);
                             }
                             if (Strings.isNullOrEmpty(yapiHeaderDTO.getName())) {
                                 yapiHeaderDTO.setName(psiParameter.getName());
