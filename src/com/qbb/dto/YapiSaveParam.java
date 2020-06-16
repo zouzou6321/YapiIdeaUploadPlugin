@@ -115,6 +115,19 @@ public class YapiSaveParam implements Serializable{
      */
     private String menu;
 
+    /**
+     * tag
+     */
+    private List<String > tag;
+
+
+    public List<String> getTag() {
+        return tag;
+    }
+
+    public void setTag(List<String> tag) {
+        this.tag = tag;
+    }
 
     public String getToken() {
         return token;

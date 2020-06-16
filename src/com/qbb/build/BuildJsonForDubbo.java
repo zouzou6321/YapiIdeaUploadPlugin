@@ -107,7 +107,7 @@ public class BuildJsonForDubbo{
         if(psiMethodTarget!=null){
             try {
                 // 获得响应
-                yapiDubboDTO.setResponse(BuildJsonForYapi.getResponse(project,psiMethodTarget.getReturnType(), null));
+                yapiDubboDTO.setResponse(BuildJsonForYapi.getResponse(project,psiMethodTarget.getReturnType(), null,false));
             } catch (JSONException e1) {
                 e1.printStackTrace();
             }
@@ -188,7 +188,8 @@ public class BuildJsonForDubbo{
             yapiDubboDTO.setParams(json);
             String packageName="/"+((PsiJavaFileImpl) psiFile).getPackageName()+"."+selectedClass.getName()+"/1.0/"+psiMethodTarget.getName();
             yapiDubboDTO.setPath(packageName);
-            yapiDubboDTO.setDesc("<pre><code> "+psiMethodTarget.getText()  +" </code></pre>");
+            String refernceDesc=psiMethodTarget.getText().replace("<", "&lt;").replace(">", "&gt;");
+            yapiDubboDTO.setDesc("<pre><code> "+refernceDesc +" </code></pre>");
             yapiDubboDTO.setTitle(DesUtil.getDescription(psiMethodTarget));
             return yapiDubboDTO;
         } catch (Exception ex) {

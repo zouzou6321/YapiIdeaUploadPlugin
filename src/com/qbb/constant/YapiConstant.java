@@ -49,4 +49,9 @@ public interface YapiConstant {
      * 通过路径获得接口
      */
     String yapiGetByPath="/api/interface/getbypath";
+
+    /**
+     * 获取某个分类下接口列表
+     */
+    String yapiListByCatId = "/api/interface/list_cat";
 }

@@ -1,6 +1,7 @@
 package com.qbb.build;
 
-import io.netty.util.internal.StringUtil;
+import com.google.gson.JsonObject;
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NonNls;
 
 import java.sql.Timestamp;
@@ -16,7 +17,7 @@ import java.util.*;
 public class NormalTypes {
 
     @NonNls
-    public static final Map<String, String> normalTypes = new HashMap<>();
+    public static final Map<String, Object> normalTypes = new HashMap<>();
 
     public static final Map<String,Object> noramlTypesPackages=new HashMap<>();
 
@@ -30,31 +31,31 @@ public class NormalTypes {
 
 
     static {
-        normalTypes.put("int","integer");
-        normalTypes.put("boolean","boolean");
-        normalTypes.put("byte","string");
-        normalTypes.put("short","integer");
-        normalTypes.put("long","integer");
-        normalTypes.put("float","number");
-        normalTypes.put("double","number");
-        normalTypes.put("char","string");
-        normalTypes.put("Boolean", "boolean");
-        normalTypes.put("Byte", "string");
-        normalTypes.put("Short", "integer");
-        normalTypes.put("Integer", "integer");
-        normalTypes.put("Long", "integer");
-        normalTypes.put("Float", "number");
-        normalTypes.put("Double", "number");
-        normalTypes.put("String", "string");
-        normalTypes.put("Date", "string");
-        normalTypes.put("BigDecimal","number");
-        normalTypes.put("LocalDate", "string");
-        normalTypes.put("LocalTime", "string");
-        normalTypes.put("LocalDateTime", "string");
-        normalTypes.put("Timestamp","integer");
-        collectTypes.put("HashMap","object");
-        collectTypes.put("Map","object");
-        collectTypes.put("LinkedHashMap","object");
+        normalTypes.put("int",1);
+        normalTypes.put("boolean",false);
+        normalTypes.put("byte",1);
+        normalTypes.put("short",1);
+        normalTypes.put("long",1L);
+        normalTypes.put("float",1.0F);
+        normalTypes.put("double",1.0D);
+        normalTypes.put("char",'a');
+        normalTypes.put("Boolean", false);
+        normalTypes.put("Byte", 0);
+        normalTypes.put("Short", Short.valueOf((short) 0));
+        normalTypes.put("Integer", 0);
+        normalTypes.put("Long", 0L);
+        normalTypes.put("Float", 0.0F);
+        normalTypes.put("Double", 0.0D);
+        normalTypes.put("String", "String");
+        normalTypes.put("Date", new SimpleDateFormat("YYYY-MM-dd HH:mm:ss").format(new Date()));
+        normalTypes.put("BigDecimal",0.111111);
+        normalTypes.put("LocalDate", new SimpleDateFormat("YYYY-MM-dd").format(new Date()));
+        normalTypes.put("LocalTime", new SimpleDateFormat("HH:mm:ss").format(new Date()));
+        normalTypes.put("LocalDateTime", new SimpleDateFormat("YYYY-MM-dd HH:mm:ss").format(new Date()));
+        normalTypes.put("Timestamp",new Timestamp(System.currentTimeMillis()));
+        collectTypes.put("HashMap","HashMap");
+        collectTypes.put("Map","Map");
+        collectTypes.put("LinkedHashMap","LinkedHashMap");
 
         genericList.add("T");
         genericList.add("E");
@@ -97,11 +98,102 @@ public class NormalTypes {
 
 
     public static boolean isNormalType(String typeName) {
-        return normalTypes.containsKey(typeName) || noramlTypesPackages.containsKey(typeName);
+        return normalTypes.containsKey(typeName);
     }
 
-    public static String getYapiType(String typeName) {
-        String type = normalTypes.get(typeName);
-        return StringUtil.isNullOrEmpty(type)?typeName:type;
+    public static JsonObject formatMockType(String type){
+        return formatMockType(type,null);
     }
+
+    /**
+     * mock type
+     * @param type
+     * @return
+     */
+    public static JsonObject formatMockType(String type,String exampleMock) {
+        JsonObject mock = new JsonObject();
+
+        //支持传入自定义mock
+        if (StringUtils.isNotEmpty(exampleMock)) {
+            mock.addProperty("mock", exampleMock);
+            return mock;
+        }
+        if (type.equals("int")){
+            mock.addProperty("mock", "@integer");
+        }else if (type.equals("boolean")){
+            mock.addProperty("mock", "@boolean");
+        }else if (type.equals("byte")){
+            mock.addProperty("mock", "@byte");
+        }else if (type.equals("short")){
+            mock.addProperty("mock", "@integer");
+        }else if (type.equals("long")){
+            mock.addProperty("mock", "@integer");
+        }else if (type.equals("float")){
+            mock.addProperty("mock", "@float");
+        }else if (type.equals("double")){
+            mock.addProperty("mock", "@float");
+        }else if (type.equals("char")){
+            mock.addProperty("mock", "@char");
+        }else if (type.equals("Boolean")){
+            mock.addProperty("mock", "@boolean");
+        }else if (type.equals("Byte")){
+            mock.addProperty("mock", "@byte");
+        }else if (type.equals("Short")){
+            mock.addProperty("mock", "@integer");
+        }else if (type.equals("Integer")){
+            mock.addProperty("mock", "@integer");
+        }else if (type.equals("Long")){
+            mock.addProperty("mock", "@integer");
+        }else if (type.equals("Float")){
+            mock.addProperty("mock", "@float");
+        }else if (type.equals("Double")){
+            mock.addProperty("mock", "@float");
+        }else if (type.equals("String")){
+            mock.addProperty("mock", "@string");
+        }else if (type.equals("Date")){
+            mock.addProperty("mock", "@timestamp");
+        }else if (type.equals("BigDecimal")){
+            mock.addProperty("mock", "@float");
+        }else if (type.equals("LocalDate")){
+            mock.addProperty("mock", "@timestamp");
+        }else if (type.equals("LocalTime")){
+            mock.addProperty("mock", "@timestamp");
+        }else if (type.equals("LocalDateTime")){
+            mock.addProperty("mock", "@timestamp");
+        }else if (type.equals("Timestamp")){
+            mock.addProperty("mock", "@timestamp");
+        }else if (type.equals("java.lang.Boolean")){
+            mock.addProperty("mock", "@boolean");
+        }else if (type.equals("java.lang.Byte")){
+            mock.addProperty("mock", "@byte");
+        }else if (type.equals("java.lang.Short")){
+            mock.addProperty("mock", "@integer");
+        }else if (type.equals("java.lang.Integer")){
+            mock.addProperty("mock", "@integer");
+        }else if (type.equals("java.lang.Long")){
+            mock.addProperty("mock", "@integer");
+        }else if (type.equals("java.lang.Float")){
+            mock.addProperty("mock", "@float");
+        }else if (type.equals("java.lang.Double")){
+            mock.addProperty("mock", "@float");
+        }else if (type.equals("java.sql.Timestamp")){
+            mock.addProperty("mock", "@timestamp");
+        }else if (type.equals("java.util.Date")){
+            mock.addProperty("mock", "@timestamp");
+        }else if (type.equals("java.lang.String")){
+            mock.addProperty("mock", "@string");
+        }else if (type.equals("java.math.BigDecimal")){
+            mock.addProperty("mock", "@float");
+        }else if (type.equals("java.time.LocalDate")){
+            mock.addProperty("mock", "@timestamp");
+        }else if (type.equals("java.time.LocalTime")){
+            mock.addProperty("mock", "@timestamp");
+        }else if (type.equals("java.time.LocalDateTime")){
+            mock.addProperty("mock", "@timestamp");
+        }else{
+            mock.addProperty("mock", "mock");
+        }
+        return mock;
+    }
+
 }

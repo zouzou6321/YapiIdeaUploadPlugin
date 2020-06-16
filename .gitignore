@@ -34,7 +34,7 @@ Thumbs.db
 *.iml
 .idea
 .gradle
-build/
+
 
 #NDK
 obj/
@@ -46,3 +46,4 @@ log
 
 out/
 .idea
+/resources/META-INF/plugin.xml

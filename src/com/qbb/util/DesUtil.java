@@ -16,15 +16,21 @@ import com.qbb.constant.YapiStatusEnum;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * 描述工具
+ * 描述工具,存放标题，菜单，描述等工具类
  *
  * @author chengsheng@qbb6.com
  * @date 2019/4/30 4:13 PM
  */
 public class DesUtil {
 
+
+    static Pattern humpPattern = Pattern.compile("[A-Z]");
+
+    static final String DASH = "-";
 
     /**
      * 去除字符串首尾出现的某个字符.
@@ -161,6 +167,23 @@ public class DesUtil {
     }
 
     /**
+     * 获得tag
+     * @param text
+     * @return
+     */
+    public static String getTag(String text){
+        if (Strings.isNullOrEmpty(text) || !text.contains("*/")) {
+            return null;
+        }
+        String[] menuList = text.split("\\*/")[0].split("@tags");
+        if (menuList.length > 1) {
+            return DesUtil.trimFirstAndLastChar(menuList[1].split("\\*")[0].replace("*", "").replace(":","").replace("\n", " ").replace(" ",""), ' ').trim();
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * @description: 获得link 备注
      * @param: [remark, project, field]
      * @return: java.lang.String
@@ -242,37 +265,79 @@ public class DesUtil {
        List<PsiClass> result=new ArrayList<>();
        String[] linkstr=field.getDocComment().getText().split("@link");
        for(int i=1;i<linkstr.length;i++){
-           String linkAddress=linkstr[i].split("}")[0].trim();
-           PsiClass psiClassLink= JavaPsiFacade.getInstance(project).findClass(linkAddress, GlobalSearchScope.allScope(project));
-           if(Objects.isNull(psiClassLink)) {
-               //可能没有获得全路径，尝试获得全路径
-               String[] importPaths=field.getParent().getContext().getText().split("import");
-               if(importPaths.length>1){
-                   for(String importPath:importPaths){
-                       importPath=importPath.split(";")[0];
-                       if(importPath.contains(linkAddress.split("\\.")[0])){
-                           linkAddress=importPath.split(linkAddress.split("\\.")[0])[0]+linkAddress;
-                           psiClassLink= JavaPsiFacade.getInstance(project).findClass(linkAddress.trim(), GlobalSearchScope.allScope(project));
-                           if(Objects.nonNull(psiClassLink)) {
-                               result.add(psiClassLink);
+           try {
+               String linkAddress = linkstr[i].split("}")[0].trim();
+               PsiClass psiClassLink = JavaPsiFacade.getInstance(project).findClass(linkAddress, GlobalSearchScope.allScope(project));
+               if (Objects.isNull(psiClassLink)) {
+                   //可能没有获得全路径，尝试获得全路径
+                   String[] importPaths = field.getParent().getContext().getText().split("import");
+                   if (importPaths.length > 1) {
+                       for (String importPath : importPaths) {
+                           importPath = importPath.split(";")[0];
+                           if (importPath.contains(linkAddress.split("\\.")[0])) {
+                               linkAddress = importPath.split(linkAddress.split("\\.")[0])[0] + linkAddress;
+                               psiClassLink = JavaPsiFacade.getInstance(project).findClass(linkAddress.trim(), GlobalSearchScope.allScope(project));
+                               if (Objects.nonNull(psiClassLink)) {
+                                   result.add(psiClassLink);
+                               }
+                               break;
                            }
-                           break;
                        }
                    }
-               }
-               if(Objects.isNull(psiClassLink)){
-                   //如果是同包情况
-                   linkAddress= ((PsiJavaFileImpl) ((PsiClassImpl) field.getParent()).getContext()).getPackageName()+"."+linkAddress;
-                   psiClassLink= JavaPsiFacade.getInstance(project).findClass(linkAddress, GlobalSearchScope.allScope(project));
-                   if(Objects.nonNull(psiClassLink)) {
-                       result.add(psiClassLink);
+                   if (Objects.isNull(psiClassLink)) {
+                       //如果是同包情况
+                       linkAddress = ((PsiJavaFileImpl) ((PsiClassImpl) field.getParent()).getContext()).getPackageName() + "." + linkAddress;
+                       psiClassLink = JavaPsiFacade.getInstance(project).findClass(linkAddress, GlobalSearchScope.allScope(project));
+                       if (Objects.nonNull(psiClassLink)) {
+                           result.add(psiClassLink);
+                       }
                    }
+                   //如果小于等于一为不存在import，不做处理
+               } else {
+                   result.add(psiClassLink);
                }
-               //如果小于等于一为不存在import，不做处理
-           }else{
-               result.add(psiClassLink);
+           }catch (Exception e){
            }
        }
        return result;
     }
+    
+    /**
+     * @description: 组装路径
+     * @param: [path, subPath]
+     * @return: void
+     * @author: chengsheng@qbb6.com
+     * @date: 2019/9/25
+     */ 
+    public static void addPath(StringBuilder path,String subPath){
+        if(subPath.startsWith("/")){
+            path.append(subPath);
+        }else{
+            path.append("/").append(subPath);
+        }
+    }
+
+    /**
+     * 驼峰转化  兼容swagger
+     *
+     * @param camelCase
+     * @return
+     */
+    public static String camelToLine(String camelCase, String split) {
+        if(Strings.isNullOrEmpty(split)){
+            split=DASH;
+        }
+        Matcher matcher = humpPattern.matcher(camelCase);
+        StringBuffer sb = new StringBuffer();
+        while (matcher.find()) {
+            matcher.appendReplacement(sb, split + matcher.group(0).toLowerCase());
+        }
+        matcher.appendTail(sb);
+        String result = sb.toString();
+        if (result.startsWith(split)) {
+            result = result.substring(split.length());
+        }
+        return result;
+    }
+
 }
