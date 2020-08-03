@@ -352,9 +352,9 @@ public class BuildJsonForYapi {
                 if (JavaConstant.HttpServletRequest.equals(psiParameter.getType().getCanonicalText()) || JavaConstant.HttpServletResponse.equals(psiParameter.getType().getCanonicalText())) {
                     continue;
                 }
-                if (JavaConstant.LOGIN_INFO.equals(psiParameter.getType().getPresentableText()) || JavaConstant.WECHAT_INFO.equals(psiParameter.getType().getPresentableText())) {
+          /*      if (JavaConstant.LOGIN_INFO.equals(psiParameter.getType().getPresentableText()) || JavaConstant.WECHAT_INFO.equals(psiParameter.getType().getPresentableText())) {
                     continue;
-                }
+                }*/
 
                 PsiAnnotation apiIgnore = PsiAnnotationSearchUtil.findAnnotation(psiParameter, SwaggerConstants.API_IGNORE);
                 if (apiIgnore != null) {
@@ -466,6 +466,16 @@ public class BuildJsonForYapi {
                             }
                             if (Strings.isNullOrEmpty(yapiHeaderDTO.getExample()) && NormalTypes.normalTypes.containsKey(psiParameter.getType().getPresentableText())) {
                                 yapiHeaderDTO.setExample(NormalTypes.normalTypes.get(psiParameter.getType().getPresentableText()).toString());
+                            }else if(Strings.isNullOrEmpty(yapiHeaderDTO.getExample()) && !NormalTypes.normalTypes.containsKey(psiParameter.getType().getPresentableText())){
+                                PsiClass psiClass = JavaPsiFacade.getInstance(project).findClass(psiParameter.getType().getInternalCanonicalText(), GlobalSearchScope.allScope(project));
+                                KV kvObject = getFields(psiClass, project, null, null, new ArrayList<>(), new HashSet<>(),true);
+
+                                Set set = kvObject.keySet();
+                                for (Object o : set) {
+                                    String type = ((JsonObject) kvObject.get(o)).get("type").getAsString();
+                                    kvObject.set(o, type);
+                                }
+                                yapiHeaderDTO.setExample(kvObject.toJson());
                             }
                             if (Strings.isNullOrEmpty(yapiHeaderDTO.getName())) {
                                 yapiHeaderDTO.setName(psiParameter.getName());
@@ -555,24 +565,33 @@ public class BuildJsonForYapi {
         } else {
             String[] parameterTypes = psiParameter.getType().getCanonicalText().split("<");
             PsiClass psiClass = JavaPsiFacade.getInstance(project).findClass(parameterTypes[0], GlobalSearchScope.allScope(project));
-            for (PsiField field : psiClass.getAllFields()) {
-                if (field.getModifierList().hasModifierProperty("final")) {
-                    continue;
-                }
+            if(psiClass.isEnum()){
+                String  remark = getEnumRemark(project, psiParameter.getType(), "");
                 Map<String, String> map = new HashMap<>();
-                map.put("name", field.getName());
+                map.put("name", psiParameter.getName());
                 map.put("type", "text");
-                String remark = DesUtil.getFiledDesc(field.getDocComment());
-                remark = DesUtil.getLinkRemark(remark, project, field);
                 map.put("desc", remark);
-                if (Objects.nonNull(field.getType().getPresentableText())) {
-                    Object obj = NormalTypes.normalTypes.get(field.getType().getPresentableText());
-                    if (Objects.nonNull(obj)) {
-                        map.put("example", NormalTypes.normalTypes.get(field.getType().getPresentableText()).toString());
-                    }
-                }
-                getFilePath(project, filePaths, DesUtil.getFieldLinks(project, field));
                 requestForm.add(map);
+            }else{
+                for (PsiField field : psiClass.getAllFields()) {
+                    if (field.getModifierList().hasModifierProperty("final")) {
+                        continue;
+                    }
+                    Map<String, String> map = new HashMap<>();
+                    map.put("name", field.getName());
+                    map.put("type", "text");
+                    String remark = DesUtil.getFiledDesc(field.getDocComment());
+                    remark = DesUtil.getLinkRemark(remark, project, field);
+                    map.put("desc", remark);
+                    if (Objects.nonNull(field.getType().getPresentableText())) {
+                        Object obj = NormalTypes.normalTypes.get(field.getType().getPresentableText());
+                        if (Objects.nonNull(obj)) {
+                            map.put("example", NormalTypes.normalTypes.get(field.getType().getPresentableText()).toString());
+                        }
+                    }
+                    getFilePath(project, filePaths, DesUtil.getFieldLinks(project, field));
+                    requestForm.add(map);
+                }
             }
         }
         return requestForm;
