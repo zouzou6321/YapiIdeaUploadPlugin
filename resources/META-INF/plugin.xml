@@ -15,6 +15,7 @@
      <em>
       - Fix multiple project read yapi.xml wrong.
       - Supports new yapi.xml formats.
+      - Merge upstream v1.8.1
      </em><br>
      2.0.9:<br>
      <em>
