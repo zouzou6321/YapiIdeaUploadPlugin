@@ -1,7 +1,7 @@
 package com.qbb.dto;
 
 import com.qbb.constant.ProjectTypeConstant;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
@@ -32,34 +32,6 @@ public class YapiProjectConfig {
 
     String attachUpload;
 
-
-    public static void main(String[] args) throws IOException, SAXException, ParserConfigurationException {
-        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "<yapi>\n" +
-                "\t<yapiUrl>111</yapiUrl>\n" +
-                "\t<returnClass>555</returnClass>\n" +
-                "\t<project name=\"default\">\n" +
-                "\t\t<projectId>333</projectId>\n" +
-                "\t\t<projectType>444</projectType>\n" +
-                "\t\t<attachUpload>666</attachUpload>\n" +
-                "\t</project>\n" +
-                "\t<project name=\"credit-admin-api\">\n" +
-                "\t\t<projectId>333</projectId>\n" +
-                "\t\t<projectType>444</projectType>\n" +
-                "\t\t<returnClass>551</returnClass>\n" +
-                "\t\t<attachUpload>666</attachUpload>\n" +
-                "\t</project>\n" +
-                "\t<project name=\"credit-web-api\">\n" +
-                "\t\t<projectId>333</projectId>\n" +
-                "\t\t<projectType>444</projectType>\n" +
-                "\t\t<returnClass>552</returnClass>\n" +
-                "\t\t<attachUpload>666</attachUpload>\n" +
-                "\t</project>\n" +
-                "</yapi>";
-        YapiProjectConfig config = readFromXml(xml, "credit-admin-api");
-        System.out.println(config);
-    }
-
     public static YapiProjectConfig readFromProperties(String props) throws IOException {
         Properties properties = new Properties();
         properties.load(new StringReader(props));
@@ -82,27 +54,62 @@ public class YapiProjectConfig {
         DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document doc = builder.parse(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
         Element root = doc.getDocumentElement();
-        NodeList nodes = root.getChildNodes();
-        YapiProjectConfig rootConfig = readXmlYapiProjectConfigByNodeList(nodes);
+        String rootName = root.getNodeName();
+        if("project".equals(rootName)) {
+            return readXmlYapiProjectConfigByOldVersion(doc);
+        } else {
+            NodeList nodes = root.getChildNodes();
+            YapiProjectConfig rootConfig = readXmlYapiProjectConfigByNodeList(nodes);
 
-        if (StringUtils.isNotEmpty(moduleName)) {
-            for (int i = 0; i < nodes.getLength(); i++) {
-                Node node = nodes.item(i);
-                if (!"project".equals(node.getNodeName())) {
-                    continue;
-                }
-                NamedNodeMap attributes = node.getAttributes();
-                String projectTagName = attributes.getNamedItem("name").getNodeValue();
-                if (moduleName.equalsIgnoreCase(projectTagName)) {
-                    YapiProjectConfig moduleConfig = readXmlYapiProjectConfigByNodeList(node.getChildNodes());
-                    mergeToFirst(rootConfig, moduleConfig);
-                    break;
+            if (StringUtils.isNotEmpty(moduleName)) {
+                for (int i = 0; i < nodes.getLength(); i++) {
+                    Node node = nodes.item(i);
+                    if (!"project".equals(node.getNodeName())) {
+                        continue;
+                    }
+                    NamedNodeMap attributes = node.getAttributes();
+                    String projectTagName = attributes.getNamedItem("name").getNodeValue();
+                    if (moduleName.equalsIgnoreCase(projectTagName)) {
+                        YapiProjectConfig moduleConfig = readXmlYapiProjectConfigByNodeList(node.getChildNodes());
+                        mergeToFirst(rootConfig, moduleConfig);
+                        break;
+                    }
                 }
             }
+            return rootConfig;
         }
-
-        return rootConfig;
     }
+
+    private static YapiProjectConfig readXmlYapiProjectConfigByOldVersion(Document doc) {
+        YapiProjectConfig config = new YapiProjectConfig();
+        NodeList nodes = doc.getElementsByTagName("option");
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Node node = nodes.item(i);
+            String attributeName = node.getAttributes().getNamedItem("name").getNodeValue();
+            switch (attributeName) {
+                case "yapiUrl":
+                    config.yapiUrl = node.getTextContent().trim();
+                    break;
+                case "projectToken":
+                    config.projectToken = node.getTextContent().trim();
+                    break;
+                case "projectId":
+                    config.projectId = node.getTextContent().trim();
+                    break;
+                case "projectType":
+                    config.projectType = node.getTextContent().trim();
+                    break;
+                case "returnClass":
+                    config.returnClass = node.getTextContent().trim();
+                    break;
+                case "attachUpload":
+                    config.attachUpload = node.getTextContent().trim();
+                    break;
+            }
+        }
+        return config;
+    }
+
 
     @NotNull
     private static YapiProjectConfig readXmlYapiProjectConfigByNodeList(NodeList nodes) {
