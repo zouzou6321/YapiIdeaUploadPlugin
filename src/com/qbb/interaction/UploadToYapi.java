@@ -34,7 +34,7 @@ public class UploadToYapi extends AnAction {
     private static NotificationGroup notificationGroup;
 
     static {
-        notificationGroup = new NotificationGroup("Java2Json.NotificationGroup", NotificationDisplayType.BALLOON, true);
+        notificationGroup = new NotificationGroup("YapiIdeaUploadPlugin.NotificationGroup", NotificationDisplayType.BALLOON, true);
     }
 
 
@@ -48,8 +48,8 @@ public class UploadToYapi extends AnAction {
             module = ModuleUtil.findModuleForFile(file, project);
         }
         VirtualFile yapiConfigFile = resolveYapiConfigFile(project, module);
-        if (yapiConfigFile == null || yapiConfigFile.exists()) {
-            Notification error = notificationGroup.createNotification("Not found config file yapi.xml", NotificationType.ERROR);
+        if (yapiConfigFile == null || !yapiConfigFile.exists()) {
+            Notification error = notificationGroup.createNotification("Yapi not found config file yapi.xml", NotificationType.ERROR);
             Notifications.Bus.notify(error, project);
             return;
         }
@@ -59,13 +59,13 @@ public class UploadToYapi extends AnAction {
             String projectConfig = new String(yapiConfigFile.contentsToByteArray(), StandardCharsets.UTF_8);
             config = YapiProjectConfig.readFromXml(projectConfig, module != null ? module.getName() : null);
         } catch (Exception e2) {
-            Notification error = notificationGroup.createNotification("get config error:" + e2.getMessage(), NotificationType.ERROR);
+            Notification error = notificationGroup.createNotification("Yapi config error:" + e2.getMessage(), NotificationType.ERROR);
             Notifications.Bus.notify(error, project);
             return;
         }
         // 配置校验
         if (!config.isValidate()) {
-            Notification error = notificationGroup.createNotification("please check config,[projectToken,projectId,yapiUrl,projectType]", NotificationType.ERROR);
+            Notification error = notificationGroup.createNotification("Yapi config required, please check config,[projectToken,projectId,yapiUrl,projectType]", NotificationType.ERROR);
             Notifications.Bus.notify(error, project);
             return;
         }
@@ -86,16 +86,16 @@ public class UploadToYapi extends AnAction {
                         // 上传
                         YapiResponse yapiResponse = new UploadYapi().uploadSave(yapiSaveParam, null, project.getBasePath(), project);
                         if (yapiResponse.getErrcode() != 0) {
-                            Notification error = notificationGroup.createNotification("sorry ,upload api error cause:" + yapiResponse.getErrmsg(), NotificationType.ERROR);
+                            Notification error = notificationGroup.createNotification("Sorry ,upload api error cause:" + yapiResponse.getErrmsg(), NotificationType.ERROR);
                             Notifications.Bus.notify(error, project);
                         } else {
                             String url = config.resolveCatUrl(yapiResponse.getCatId());
                             this.setClipboard(url);
-                            Notification error = notificationGroup.createNotification("success ,url: " + url, NotificationType.INFORMATION);
+                            Notification error = notificationGroup.createNotification("Success ,url: " + url, NotificationType.INFORMATION);
                             Notifications.Bus.notify(error, project);
                         }
                     } catch (Exception e1) {
-                        Notification error = notificationGroup.createNotification("sorry ,upload api error cause:" + e1, NotificationType.ERROR);
+                        Notification error = notificationGroup.createNotification("Sorry ,upload api error cause:" + e1, NotificationType.ERROR);
                         Notifications.Bus.notify(error, project);
                     }
                 }
@@ -120,16 +120,16 @@ public class UploadToYapi extends AnAction {
                         // 上传
                         YapiResponse yapiResponse = new UploadYapi().uploadSave(yapiSaveParam, config.getAttachUpload(), project.getBasePath(), project);
                         if (yapiResponse.getErrcode() != 0) {
-                            Notification error = notificationGroup.createNotification("sorry ,upload api error cause:" + yapiResponse.getErrmsg(), NotificationType.ERROR);
+                            Notification error = notificationGroup.createNotification("Sorry ,upload api error cause:" + yapiResponse.getErrmsg(), NotificationType.ERROR);
                             Notifications.Bus.notify(error, project);
                         } else {
                             String url = config.resolveCatUrl(yapiResponse.getCatId());
                             this.setClipboard(url);
-                            Notification error = notificationGroup.createNotification("success ,url:  " + url, NotificationType.INFORMATION);
+                            Notification error = notificationGroup.createNotification("Success ,url:  " + url, NotificationType.INFORMATION);
                             Notifications.Bus.notify(error, project);
                         }
                     } catch (Exception e1) {
-                        Notification error = notificationGroup.createNotification("sorry ,upload api error cause:" + e1, NotificationType.ERROR);
+                        Notification error = notificationGroup.createNotification("Sorry ,upload api error cause:" + e1, NotificationType.ERROR);
                         Notifications.Bus.notify(error, project);
                     }
                 }
