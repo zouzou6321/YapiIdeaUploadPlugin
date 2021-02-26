@@ -2,12 +2,30 @@ package com.qbb.build;
 
 import com.google.common.base.Strings;
 import com.google.gson.JsonObject;
-import com.intellij.notification.*;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationDisplayType;
+import com.intellij.notification.NotificationGroup;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.*;
+import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiAnnotation;
+import com.intellij.psi.PsiAnnotationMemberValue;
+import com.intellij.psi.PsiArrayType;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiEnumConstant;
+import com.intellij.psi.PsiField;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiNameValuePair;
+import com.intellij.psi.PsiParameter;
+import com.intellij.psi.PsiPrimitiveType;
+import com.intellij.psi.PsiReference;
+import com.intellij.psi.PsiType;
 import com.intellij.psi.impl.compiled.ClsFileImpl;
 import com.intellij.psi.impl.source.PsiClassReferenceType;
 import com.intellij.psi.impl.source.PsiJavaFileImpl;
@@ -304,13 +322,20 @@ public class BuildJsonForYapi {
             if (Strings.isNullOrEmpty(yapiApiDTO.getTitle())) {
                 yapiApiDTO.setTitle(DesUtil.getDescription(psiMethodTarget));
                 if (Objects.nonNull(psiMethodTarget.getDocComment())) {
+                    // 支持菜单
                     String menu = DesUtil.getMenu(psiMethodTarget.getDocComment().getText());
                     if (!Strings.isNullOrEmpty(menu)) {
                         yapiApiDTO.setMenu(menu);
                     }
+                    // 支持状态
                     String status = DesUtil.getStatus(psiMethodTarget.getDocComment().getText());
                     if (!Strings.isNullOrEmpty(status)) {
                         yapiApiDTO.setStatus(status);
+                    }
+                    // 支持自定义路径
+                    String pathCustom=DesUtil.getPath(psiMethodTarget.getDocComment().getText());
+                    if(!Strings.isNullOrEmpty(pathCustom)){
+                        yapiApiDTO.setPath(pathCustom);
                     }
                 }
             }
@@ -538,7 +563,7 @@ public class BuildJsonForYapi {
             yapiApiDTO.setParams(yapiParamList);
             yapiApiDTO.setHeader(yapiHeaderDTOList);
             yapiApiDTO.setReq_params(yapiPathVariableDTOList);
-        } else {
+        }else{
             yapiApiDTO.setParams(new ArrayList<>());
             yapiApiDTO.setHeader(new ArrayList<>());
             yapiApiDTO.setReq_params(new ArrayList<>());
@@ -899,14 +924,14 @@ public class BuildJsonForYapi {
         //swagger支持
         remark = StringUtils.defaultIfEmpty(PsiAnnotationSearchUtil.getPsiParameterAnnotationValue(field, SwaggerConstants.API_MODEL_PROPERTY), "");
         if (field.getDocComment() != null) {
-            if (Strings.isNullOrEmpty(remark)) {
+            if(Strings.isNullOrEmpty(remark)) {
                 remark = DesUtil.getFiledDesc(field.getDocComment());
             }
-
             //获得link 备注
             remark = DesUtil.getLinkRemark(remark, project, field);
             getFilePath(project, filePaths, DesUtil.getFieldLinks(project, field));
         }
+
 
 
         // 如果是基本类型
