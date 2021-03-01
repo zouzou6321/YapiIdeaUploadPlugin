@@ -11,70 +11,21 @@
 
   <change-notes><![CDATA[
       <a href="https://github.com/zouzou6321/YapiIdeaUploadPlugin">使用方式</a> <br>
-     2.1.0:<br>
-     <em>
-      - Fix multiple project read yapi.xml wrong.
-      - Supports new yapi.xml formats.
-      - Merge upstream v1.8.1
-     </em><br>
-     2.0.9:<br>
-     <em>
-      - fixbug
-      - support  enum  parameter
-     </em><br>
-     2.0.8:<br>
-     <em>
-      - fixbug header content-type
-     </em><br>
-     2.0.7:<br>
-     <em>
-      - fixbug
-      - support @tags
-      - params requried default true
-     </em><br>
-     2.0.6:<br>
-     <em>
-      - fixbug
-     </em><br>
-     2.0.5:<br>
-     <em>
-      - support swagger & swagger mock
-      - ignore logininfo
-      - fixbug
-     </em><br>
-     2.0.3:<br>
-      <em>
-      - support base mock power
-       -fixbug
-      </em><br>
-      2.0.2:<br>
-      <em>
-        -Solve the bug that DeleteMapping and PutMapping annotation parameters cannot be generated
-        -Response support map
-        -Support Deprecated not upload
-        -Handle loop calls
-       -fixbug
-      </em><br>
-      2.0.1:<br>
-      <em>
-        -Solve the problem that the content of yapi.xml comments is still read.
-        -Solve the problem of inaccurate content-type generation.
-        The completed interface on -yapi is not updated, and the contents modified manually will not be overwritten
-        -Support path missing / completion
-       -fixbug
-      </em><br>
-      2.0.0:<br>
-      <em>
-        -Migrate configuration files from the idea directory to the src / main / resources directory. The main consideration is that the .idea folder is generally ignored. The reason for this is to avoid additional conflicts when different developers collaborate.
-        -Uploading without specifying a class name or method name, alternately upload the main class in the current file, reducing operating and learning costs.
-         When the class included in the generic is the base class, the generic variable is directly used as the base type.
-        -Map the types in Java and the types of Yapi to ensure consistency, and automatically generate decomposed data.
-         Add support for enumerated attributes and enumerate multiple attributes
-         -fixbug
-      </em><br>
-      <br>
-
-
+      <em>2.1.1</em><br>
+      <ul>
+          <li>支持spring-data的Page接口</li>
+      </ul>
+      <em>2.1.0</em><br>
+      <ul>
+          <li>Fix multiple project read yapi.xml wrong.</li>
+          <li>Supports new yapi.xml formats.</li>
+          <li>Merge upstream v1.8.1</li>
+      </ul>
+      <em>2.0.9</em><br>
+      <ul>
+          <li>fixbug</li>
+          <li>supports enum  parameter</li>
+      </ul>
     ]]>
   </change-notes>
 
