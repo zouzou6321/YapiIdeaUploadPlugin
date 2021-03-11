@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>WxbYapiUpload</id>
   <name>WxbYapiUpload</name>
-  <version>2.1.0</version>
+  <version>2.1.1</version>
   <vendor email="chenglitao521@gmail.com" url="http://www.qbb6.com">wxb</vendor>
 
   <description><![CDATA[
@@ -14,6 +14,7 @@
       <em>2.1.1</em><br>
       <ul>
           <li>支持spring-data的Page接口</li>
+          <li>修复泛型?时NPE异常</li>
       </ul>
       <em>2.1.0</em><br>
       <ul>

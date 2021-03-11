@@ -1005,16 +1005,22 @@ public class BuildJsonForYapi {
                         //class type
                         KV kv1 = new KV();
                         kv1.set(KV.by("type", "object"));
+
                         PsiClass psiClassChild = JavaPsiFacade.getInstance(project).findClass(child, GlobalSearchScope.allScope(project));
-                        kv1.set(KV.by("description", (Strings.isNullOrEmpty(remark) ? ("" + psiClassChild.getName().trim()) :
-                                remark + " ," + psiClassChild.getName().trim())));
-                        if (!pNames.contains(psiClassChild.getName())) {
-                            List<String> requiredList = new ArrayList<>();
-                            kv1.set(KV.by("properties", getFields(psiClassChild, project, childType, index + 1, requiredList, pNames,reqParam)));
-                            kv1.set("required", requiredList);
-                            addFilePaths(filePaths, psiClassChild);
+                        if(psiClassChild != null) {
+                            kv1.set(KV.by("description",
+                                    (Strings.isNullOrEmpty(remark) ? ("" + psiClassChild.getName().trim()) :
+                                            remark + " ," + psiClassChild.getName().trim())));
+                            if (!pNames.contains(psiClassChild.getName())) {
+                                List<String> requiredList = new ArrayList<>();
+                                kv1.set(KV.by("properties", getFields(psiClassChild, project, childType, index + 1, requiredList, pNames,reqParam)));
+                                kv1.set("required", requiredList);
+                                addFilePaths(filePaths, psiClassChild);
+                            } else if(psiClassChild != null) {
+                                kv1.set(KV.by("type", psiClassChild.getName()));
+                            }
                         } else {
-                            kv1.set(KV.by("type", psiClassChild.getName()));
+                            kv1.set(KV.by("type", child));
                         }
                         kv.set(name, kv1);
                     }
@@ -1162,16 +1168,22 @@ public class BuildJsonForYapi {
                         //class type
                         KV kv1 = new KV();
                         kv1.set(KV.by("type", "object"));
+
                         PsiClass psiClassChild = JavaPsiFacade.getInstance(project).findClass(child, GlobalSearchScope.allScope(project));
-                        kv1.set(KV.by("description", (Strings.isNullOrEmpty(remark) ? ("" + psiClassChild.getName().trim()) :
-                                remark + " ," + psiClassChild.getName().trim())));
-                        if (!pNames.contains(psiClassChild.getName())) {
-                            List<String> requiredList = new ArrayList<>();
-                            kv1.set(KV.by("properties", getFields(psiClassChild, project, childType, index + 1, requiredList, pNames,reqParam)));
-                            kv1.set("required", requiredList);
-                            addFilePaths(filePaths, psiClassChild);
+                        if(psiClassChild != null) {
+                            kv1.set(KV.by("description",
+                                    (Strings.isNullOrEmpty(remark) ? ("" + psiClassChild.getName().trim()) :
+                                            remark + " ," + psiClassChild.getName().trim())));
+                            if (!pNames.contains(psiClassChild.getName())) {
+                                List<String> requiredList = new ArrayList<>();
+                                kv1.set(KV.by("properties", getFields(psiClassChild, project, childType, index + 1, requiredList, pNames,reqParam)));
+                                kv1.set("required", requiredList);
+                                addFilePaths(filePaths, psiClassChild);
+                            } else if(psiClassChild != null) {
+                                kv1.set(KV.by("type", psiClassChild.getName()));
+                            }
                         } else {
-                            kv1.set(KV.by("type", psiClassChild.getName()));
+                            kv1.set(KV.by("type", child));
                         }
                         kv.set(name, kv1);
                     }
