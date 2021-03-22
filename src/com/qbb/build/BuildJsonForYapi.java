@@ -790,13 +790,13 @@ public class BuildJsonForYapi {
                 List<String> requiredList = new ArrayList<>();
                 KV kvObject = getFields(psiClassChild, project, null, null, requiredList, new HashSet<>(),reqParam);
                 addFilePaths(filePaths, psiClassChild);
-                if (Objects.nonNull(psiClassChild.getSuperClass()) && !psiClassChild.getSuperClass().getName().toString().equals("Object")) {
+                if (psiClassChild != null && Objects.nonNull(psiClassChild.getSuperClass()) && !psiClassChild.getSuperClass().getName().toString().equals("Object")) {
                     addFilePaths(filePaths, psiClassChild.getSuperClass());
                 }
                 result.set("type", "object");
                 result.set("required", requiredList);
                 result.set("title", psiType.getPresentableText());
-                result.set("description", (psiType.getPresentableText() + " :" + psiClassChild.getName()).trim());
+                result.set("description", (psiType.getPresentableText() + " :" + (psiClassChild != null?psiClassChild.getName():"")).trim());
                 result.set("properties", kvObject);
                 return result;
             }
@@ -829,7 +829,7 @@ public class BuildJsonForYapi {
                     pNameList.add(psiClass.getName());
                     getField(field, project, kv, childType, index, pNameList,reqParam);
                 }
-            } else if (psiClass.isInterface()) {
+            } else if (psiClass.isInterface() && NormalTypes.interfaceList.contains(psiClass.getQualifiedName())) {
                 PsiMethod[] methods = psiClass.getAllMethods();
                 for (PsiMethod method : methods) {
                     String methodName = method.getName();
@@ -992,7 +992,10 @@ public class BuildJsonForYapi {
                         index = index + 1;
                         PsiClass psiClassChild = JavaPsiFacade.getInstance(project).findClass(childType[index].split(">")[0],
                                 GlobalSearchScope.allScope(project));
-                        getCollect(kv, psiClassChild.getName(), remark, psiClassChild, project, name, pNames, childType, index + 1,reqParam);
+                        if(psiClassChild != null) {
+                            getCollect(kv, psiClassChild.getName(), remark, psiClassChild, project, name, pNames,
+                                    childType, index + 1, reqParam);
+                        }
                     } else if (NormalTypes.isNormalType(child) || NormalTypes.noramlTypesPackages.containsKey(child)) {
                         KV kv1 = new KV();
                         PsiClass psiClassChild = JavaPsiFacade.getInstance(project).findClass(child, GlobalSearchScope.allScope(project));
@@ -1150,13 +1153,16 @@ public class BuildJsonForYapi {
                 jsonObject.addProperty("description", remark);
                 kv.set(name, jsonObject);
             } else if (NormalTypes.genericList.contains(fieldTypeName)) {
-                if (childType != null) {
+                if (childType != null && childType.length > index) {
                     String child = childType[index].split(">")[0];
                     if (child.contains("java.util.List") || child.contains("java.util.Set") || child.contains("java.util.HashSet")) {
                         index = index + 1;
                         PsiClass psiClassChild = JavaPsiFacade.getInstance(project).findClass(childType[index].split(">")[0],
                                 GlobalSearchScope.allScope(project));
-                        getCollect(kv, psiClassChild.getName(), remark, psiClassChild, project, name, pNames, childType, index + 1,reqParam);
+                        if(psiClassChild != null) {
+                            getCollect(kv, psiClassChild.getName(), remark, psiClassChild, project, name, pNames,
+                                    childType, index + 1, reqParam);
+                        }
                     } else if (NormalTypes.isNormalType(child) || NormalTypes.noramlTypesPackages.containsKey(child)) {
                         KV kv1 = new KV();
                         PsiClass psiClassChild = JavaPsiFacade.getInstance(project).findClass(child, GlobalSearchScope.allScope(project));
