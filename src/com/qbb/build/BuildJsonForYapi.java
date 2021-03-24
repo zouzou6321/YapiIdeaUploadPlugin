@@ -181,7 +181,7 @@ public class BuildJsonForYapi {
                             yapiApiDTO.setTitle(DesUtil.getUrlReFerenceRDesc(psiReference.resolve().getText()));
                             yapiApiDTO.setMenu(DesUtil.getMenu(psiReference.resolve().getText()));
                             yapiApiDTO.setStatus(DesUtil.getStatus(psiReference.resolve().getText()));
-                            yapiApiDTO.setDesc("<pre><code>  " + psiReference.resolve().getText() + " </code></pre> <hr>");
+                            yapiApiDTO.setDesc("<pre><code>" + psiReference.resolve().getText() + "</code></pre><hr>");
                         }
                         yapiApiDTO.setPath(path.toString());
                     } else if ("method".equals(psiNameValuePair.getName()) && psiNameValuePair.getValue().toString().toUpperCase().contains(HttpMethodConstant.GET)) {
@@ -244,7 +244,7 @@ public class BuildJsonForYapi {
                                 yapiApiDTO.setStatus(DesUtil.getStatus(psiReference.resolve().getText()));
                                 if (!Strings.isNullOrEmpty(psiReference.resolve().getText())) {
                                     String refernceDesc = psiReference.resolve().getText().replace("<", "&lt;").replace(">", "&gt;");
-                                    yapiApiDTO.setDesc("<pre><code>  " + refernceDesc + " </code></pre> <hr>");
+                                    yapiApiDTO.setDesc("<pre><code>    " + refernceDesc + " </code></pre> <hr>");
                                 }
                             }
                             yapiApiDTO.setPath(path.toString().trim());
@@ -261,7 +261,7 @@ public class BuildJsonForYapi {
         if (!Strings.isNullOrEmpty(classDesc)) {
             classDesc = classDesc.replace("<", "&lt;").replace(">", "&gt;");
         }
-        yapiApiDTO.setDesc(Objects.nonNull(yapiApiDTO.getDesc()) ? yapiApiDTO.getDesc() : " <pre><code>  " + classDesc + "</code></pre>");
+        yapiApiDTO.setDesc(Objects.nonNull(yapiApiDTO.getDesc()) ? yapiApiDTO.getDesc() : " <pre><code>    " + classDesc + "</code></pre>");
         try {
             // 先清空之前的文件路径
             filePaths.clear();

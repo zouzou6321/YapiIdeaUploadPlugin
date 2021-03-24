@@ -13,8 +13,9 @@
       <a href="https://github.com/zouzou6321/YapiIdeaUploadPlugin">使用方式</a> <br>
       <em>2.1.1</em><br>
       <ul>
-          <li>支持spring-data的Page接口</li>
-          <li>修复泛型?时NPE异常</li>
+          <li>Supports spring-data's Page.</li>
+          <li>Fix ? generic NullPointException.</li>
+          <li>Optimize generate api description.</li>
       </ul>
       <em>2.1.0</em><br>
       <ul>
