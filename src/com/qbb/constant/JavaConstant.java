@@ -10,15 +10,17 @@ public interface JavaConstant {
 
     String NotNull="javax.validation.constraints.NotNull";
 
-    String NotEmpty="javax.validation.constraints.NotEmpty";
+    String NotEmpty = "javax.validation.constraints.NotEmpty";
 
-    String NotBlank="javax.validation.constraints.NotBlank";
+    String NotBlank = "javax.validation.constraints.NotBlank";
 
-    String HttpServletRequest="javax.servlet.http.HttpServletRequest";
+    String HttpServletRequest = "javax.servlet.http.HttpServletRequest";
 
-    String HttpServletResponse="javax.servlet.http.HttpServletResponse";
+    String HttpServletResponse = "javax.servlet.http.HttpServletResponse";
 
-    String Deprecate="java.lang.Deprecated";
+    String Deprecate = "java.lang.Deprecated";
+
+    String ApiVersion = "com.source3g.martech.common.config.ApiVersion";
 
     String LOGIN_INFO = "LoginUserInfo";
     String WECHAT_INFO = "WxUserInfo";

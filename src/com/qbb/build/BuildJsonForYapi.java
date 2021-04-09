@@ -2,6 +2,7 @@ package com.qbb.build;
 
 import com.google.common.base.Strings;
 import com.google.gson.JsonObject;
+import com.intellij.codeInsight.AnnotationUtil;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationDisplayType;
 import com.intellij.notification.NotificationGroup;
@@ -17,7 +18,6 @@ import com.intellij.psi.PsiAnnotationMemberValue;
 import com.intellij.psi.PsiArrayType;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiEnumConstant;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiMethod;
@@ -33,7 +33,11 @@ import com.intellij.psi.impl.source.PsiJavaFileImpl;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtil;
-import com.qbb.constant.*;
+import com.qbb.constant.BodyTypeConstant;
+import com.qbb.constant.HttpMethodConstant;
+import com.qbb.constant.JavaConstant;
+import com.qbb.constant.SpringMVCConstant;
+import com.qbb.constant.SwaggerConstants;
 import com.qbb.dto.YapiApiDTO;
 import com.qbb.dto.YapiHeaderDTO;
 import com.qbb.dto.YapiPathVariableDTO;
@@ -43,14 +47,20 @@ import com.qbb.util.DesUtil;
 import com.qbb.util.FileToZipUtil;
 import com.qbb.util.FileUnZipUtil;
 import com.qbb.util.PsiAnnotationSearchUtil;
-import org.apache.commons.lang.StringUtils;
-import org.codehaus.jettison.json.JSONException;
-
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
+import org.apache.commons.lang.StringUtils;
+import org.codehaus.jettison.json.JSONException;
 
 /**
  * @description: 为了yapi 创建的
@@ -256,12 +266,32 @@ public class BuildJsonForYapi {
                 return null;
             }
         }
-        String classDesc = psiMethodTarget.getText().replace(Objects.nonNull(psiMethodTarget.getBody()) ? psiMethodTarget.getBody().getText() : "",
-                "");
+        // 定制@ApiVersion注解
+        String pathStr = yapiApiDTO.getPath();
+        if (pathStr != null && pathStr.contains("version")) {
+            PsiAnnotation apiVersionAnnotation = PsiAnnotationSearchUtil
+                    .findAnnotation(psiMethodTarget, JavaConstant.ApiVersion);
+            if (apiVersionAnnotation == null) {
+                apiVersionAnnotation = PsiAnnotationSearchUtil.findAnnotation(selectedClass, JavaConstant.ApiVersion);
+            }
+            if (apiVersionAnnotation != null) {
+                Long versionValue = AnnotationUtil
+                        .getLongAttributeValue(apiVersionAnnotation, PsiAnnotation.DEFAULT_REFERENCED_METHOD_NAME);
+                if (versionValue != null) {
+                    pathStr = pathStr.replaceAll("\\{\\s*version\\s*}", "v" + versionValue);
+                    yapiApiDTO.setPath(pathStr);
+                }
+            }
+        }
+
+        String classDesc = psiMethodTarget.getText()
+                .replace(Objects.nonNull(psiMethodTarget.getBody()) ? psiMethodTarget.getBody().getText() : "",
+                        "");
         if (!Strings.isNullOrEmpty(classDesc)) {
             classDesc = classDesc.replace("<", "&lt;").replace(">", "&gt;");
         }
-        yapiApiDTO.setDesc(Objects.nonNull(yapiApiDTO.getDesc()) ? yapiApiDTO.getDesc() : " <pre><code>    " + classDesc + "</code></pre>");
+        yapiApiDTO.setDesc(Objects.nonNull(yapiApiDTO.getDesc()) ? yapiApiDTO.getDesc()
+                : " <pre><code>    " + classDesc + "</code></pre>");
         try {
             // 先清空之前的文件路径
             filePaths.clear();
