@@ -29,6 +29,8 @@ public class NormalTypes {
      */
     public static final List<String> genericList=new ArrayList<>();
 
+    public static final List<String> interfaceList = new ArrayList<>();
+
 
     static {
         normalTypes.put("int",1);
@@ -63,6 +65,8 @@ public class NormalTypes {
         genericList.add("B");
         genericList.add("K");
         genericList.add("V");
+
+        interfaceList.add("org.springframework.data.domain.Page");
     }
 
     static {
